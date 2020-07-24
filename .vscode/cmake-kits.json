@@ -1,0 +1,22 @@
+[
+  {
+    "name": "cppsocks-linux-x64-gcc-Linux",
+    "toolchainFile": "${workspaceFolder}/cmake/toolchain/toolchain.linux-x64.cmake",
+    "cmakeSettings": {
+      "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+    },
+    "preferredGenerator": {
+      "name": "Ninja"
+    }
+  },
+  {
+    "name": "cppsocks-win32-gcc-Windows",
+    "toolchainFile": "${workspaceFolder}/cmake/toolchain/toolchain.nt-x86.cmake",
+    "cmakeSettings": {
+      "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+    },
+    "preferredGenerator": {
+      "name": "Ninja"
+    }
+  }
+]

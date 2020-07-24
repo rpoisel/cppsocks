@@ -1,0 +1,7 @@
+{
+    "cmake.buildDirectory": "${workspaceFolder}/build/${buildKit}",
+    "editor.formatOnSave": false,
+    "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools",
+    "python.pythonPath": "/home/rpoisel/miniconda3/envs/rpo-dev/bin/python",
+    "python.formatting.provider": "autopep8",
+}

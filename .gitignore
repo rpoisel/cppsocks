@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+
+/build/
+/.vscode/*.db
+/.vscode/*.db-shm
+/.vscode/*.db-wal

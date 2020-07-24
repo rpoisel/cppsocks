@@ -37,7 +37,7 @@ int main()
   catch (std::exception& exc)
   {
     std::cerr << "An error occured: " << exc.what() << std::endl;
-    return 1;
+    return EXIT_FAILURE;
   }
-  return 0;
+  return EXIT_SUCCESS;
 }

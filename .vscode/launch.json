@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/cppsocks-linux-x64-gcc-Linux/src/main",
+            "program": "${workspaceFolder}/build/cppsocks-linux-x64-gcc-Linux/src/examples/echo/ws_echo",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

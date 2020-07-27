@@ -7,6 +7,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <string.h>
+
+#include <stdexcept>
 #include <thread>
 
 class PosixContext final : public WS::SystemContext
@@ -42,7 +45,7 @@ class PosixTcpSocket final : public WS::TcpSocket
 class PosixTcpListenSocket final : public WS::TcpListenSocket
 {
   public:
-  explicit PosixTcpListenSocket(int fd) : fd(fd) {}
+  explicit PosixTcpListenSocket(int fd) : fd{fd} {}
   ~PosixTcpListenSocket() override { ::close(fd); }
 
   bool waitForConnection() override
@@ -53,10 +56,11 @@ class PosixTcpListenSocket final : public WS::TcpListenSocket
 
   WS::TcpSocketInstance accept() override
   {
-    int client_fd = ::accept(fd, nullptr, nullptr);
+    auto client_fd = ::accept(fd, nullptr, nullptr);
     if (client_fd == -1)
     {
-      throw WS::ResourceException("Error while accepting client connection.");
+      close(fd);
+      throw std::runtime_error(strerror(errno));
     }
 
     return WS::TcpSocketInstance(new PosixTcpSocket(client_fd));

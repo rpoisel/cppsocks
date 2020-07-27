@@ -13,7 +13,7 @@ namespace WS
 
 struct ServerOptions
 {
-  ServerOptions(int serverPort = 80, std::size_t maxClients = 5) : serverPort(serverPort), maxClients(maxClients) {}
+  ServerOptions(int serverPort = 5555, std::size_t maxClients = 5) : serverPort(serverPort), maxClients(maxClients) {}
   int const serverPort;
   std::size_t const maxClients;
 };

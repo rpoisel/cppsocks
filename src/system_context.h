@@ -1,6 +1,11 @@
 #ifndef SYSTEM_CONTEXT_H
 #define SYSTEM_CONTEXT_H
 
+#include <ws_types.h>
+
+#include <unistd.h>
+
+#include <array>
 #include <cstddef>
 #include <memory>
 
@@ -10,9 +15,12 @@ namespace WS
 class TcpSocket
 {
   public:
+  static constexpr std::size_t const MAX_SIZE = 1024;
+  using MsgBuf = std::array<Byte, MAX_SIZE>;
+
   virtual ~TcpSocket() {}
-  virtual std::size_t read() = 0;
-  virtual void write(void const* buf, std::size_t len) = 0;
+  virtual ssize_t read(MsgBuf& buf) = 0;
+  virtual ssize_t write(void const* buf, std::size_t buflen) = 0;
 };
 
 using TcpSocketInstance = std::unique_ptr<TcpSocket>;

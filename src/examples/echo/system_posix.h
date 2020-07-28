@@ -5,7 +5,6 @@
 
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <unistd.h>
 
 #include <string.h>
 
@@ -26,12 +25,12 @@ class PosixTcpSocket final : public WS::TcpSocket
     // make sure socket is non-blocking
   }
   ~PosixTcpSocket() override { ::close(fd); }
-  std::size_t read() override { return 0; }
-  void write(void const* buf, std::size_t len) override
+  ssize_t read(std::array<std::uint8_t, MAX_SIZE>& buf) override
   {
     (void)buf;
-    (void)len;
+    return 0;
   }
+  ssize_t write(void const* buf, std::size_t buflen) override { return ::write(fd, buf, buflen); }
 
   private:
   PosixTcpSocket(PosixTcpSocket const&) = delete;
@@ -51,7 +50,7 @@ class PosixTcpListenSocket final : public WS::TcpListenSocket
   bool waitForConnection() override
   {
     std::this_thread::sleep_for(std::chrono::duration<uint32_t, std::milli>(100));
-    return false;
+    return true;
   }
 
   WS::TcpSocketInstance accept() override

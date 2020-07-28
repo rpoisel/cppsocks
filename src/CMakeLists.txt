@@ -10,6 +10,7 @@ target_include_directories(ws PUBLIC
 
 target_link_libraries(ws PUBLIC
   Threads::Threads
+  wslay
  )
 
 target_compile_options(ws PUBLIC

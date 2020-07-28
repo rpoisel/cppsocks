@@ -1,5 +1,6 @@
 #include <ws.h>
-#include <ws_client.h>
+#include <ws_types.h>
+#include <ws_worker.h>
 
 #include <cstring>
 #include <list>
@@ -28,10 +29,12 @@ void Server::serve(SystemContext& systemContext, ServerHandler& handler, ServerO
     cleanup(workers);
     if (workers.size() < options.maxClients)
     {
-      workers.emplace_back(std::move(clientSocket));
+      ClientWorker clientWorker(std::move(clientSocket), this);
+      clientWorker.start();
+      workers.push_back(std::move(clientWorker));
       continue;
     }
-    constexpr char const* bye = "No more connections allowed.";
+    constexpr auto const bye = "No more connections allowed.\n";
     clientSocket->write(bye, std::strlen(bye));
   }
 }
@@ -41,10 +44,10 @@ static void cleanup(ClientWorkers& workers)
   workers.remove_if([](ClientWorker& worker) {
     if (worker.isActive())
     {
-      return true;
+      return false;
     }
     worker.finish();
-    return false;
+    return true;
   });
 }
 

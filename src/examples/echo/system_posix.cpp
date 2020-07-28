@@ -34,5 +34,5 @@ TcpListenSocketInstance PosixContext::createListenSocket(int port)
     close(fd);
     throw std::runtime_error(strerror(errno));
   }
-  return TcpListenSocketInstance(new PosixTcpListenSocket(10 /* TODO */));
+  return TcpListenSocketInstance(new PosixTcpListenSocket(fd));
 }

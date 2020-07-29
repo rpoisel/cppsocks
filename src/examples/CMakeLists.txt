@@ -1,1 +1,2 @@
+add_subdirectory(system_context)
 add_subdirectory(echo)

@@ -16,12 +16,12 @@ class EchoHandler final : public ServerHandler
 
   void onConnect(Connection* connection) override
   {
+    (void)connection;
     std::cout << "Connection established." << std::endl;
-    connections.insert(connection);
   }
   void onDisconnect(Connection* connection) override
   {
-    connections.erase(connection);
+    (void)connection;
     std::cout << "Connection closed." << std::endl;
   }
   void onReceive(Connection* connection, void const* buf, std::size_t len) override { connection->send(buf, len); }
@@ -31,8 +31,6 @@ class EchoHandler final : public ServerHandler
   EchoHandler& operator=(EchoHandler const&) = delete;
   EchoHandler(EchoHandler&&) = delete;
   EchoHandler& operator=(EchoHandler&&) = delete;
-
-  std::set<WS::Connection*> connections;
 };
 
 int main()

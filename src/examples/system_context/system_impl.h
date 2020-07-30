@@ -11,28 +11,28 @@
 #include <stdexcept>
 #include <thread>
 
-class PosixContext final : public WS::SystemContext
+class SystemContextImpl final : public WS::SystemContext
 {
   public:
   virtual WS::TcpListenSocketInstance createListenSocket(int port);
 };
 
-class PosixTcpSocket final : public WS::TcpSocket
+class TcpSocketImpl final : public WS::TcpSocket
 {
   public:
-  explicit PosixTcpSocket(int fd) : fd(fd)
+  explicit TcpSocketImpl(int fd) : fd(fd)
   {
     // make sure socket is non-blocking
   }
-  ~PosixTcpSocket() override { ::close(fd); }
+  ~TcpSocketImpl() override { ::close(fd); }
   ssize_t read(std::array<std::uint8_t, WS::MAX_SIZE>& buf) override { return ::recv(fd, buf.data(), buf.size(), 0); }
   ssize_t write(void const* buf, std::size_t buflen) override { return ::send(fd, buf, buflen, 0); }
 
   private:
-  PosixTcpSocket(PosixTcpSocket const&) = delete;
-  PosixTcpSocket& operator=(PosixTcpSocket const&) = delete;
-  PosixTcpSocket(PosixTcpSocket&&) = delete;
-  PosixTcpSocket& operator=(PosixTcpSocket&&) = delete;
+  TcpSocketImpl(TcpSocketImpl const&) = delete;
+  TcpSocketImpl& operator=(TcpSocketImpl const&) = delete;
+  TcpSocketImpl(TcpSocketImpl&&) = delete;
+  TcpSocketImpl& operator=(TcpSocketImpl&&) = delete;
 
   int const fd;
 };
@@ -58,7 +58,7 @@ class PosixTcpListenSocket final : public WS::TcpListenSocket
       throw std::runtime_error(strerror(errno));
     }
 
-    return WS::TcpSocketInstance(new PosixTcpSocket(client_fd));
+    return WS::TcpSocketInstance(new TcpSocketImpl(client_fd));
   }
 
   private:

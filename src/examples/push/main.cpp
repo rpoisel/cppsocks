@@ -68,14 +68,14 @@ static void pusherRunner(PushHandler& pushHandler)
 int main()
 {
   int retVal = EXIT_SUCCESS;
-  PosixContext posixContext;
+  SystemContextImpl systemContextImpl;
   PushHandler pushHandler;
   WS::Server server;
   std::thread pusherThr{pusherRunner, std::ref(pushHandler)};
 
   try
   {
-    server.serve(posixContext, pushHandler, WS::ServerOptions());
+    server.serve(systemContextImpl, pushHandler, WS::ServerOptions());
   }
   catch (std::exception& exc)
   {

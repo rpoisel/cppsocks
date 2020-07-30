@@ -8,7 +8,7 @@ using namespace WS;
 
 constexpr static int const BACKLOG = 5;
 
-TcpListenSocketInstance PosixContext::createListenSocket(int port)
+TcpListenSocketInstance SystemContextImpl::createListenSocket(int port)
 {
   auto fd = ::socket(AF_INET, SOCK_STREAM, 0);
   struct sockaddr_in addr;

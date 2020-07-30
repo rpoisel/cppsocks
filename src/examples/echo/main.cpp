@@ -35,13 +35,13 @@ class EchoHandler final : public ServerHandler
 
 int main()
 {
-  PosixContext posixContext;
+  SystemContextImpl systemContextImpl;
   EchoHandler echoHandler;
   WS::Server server;
 
   try
   {
-    server.serve(posixContext, echoHandler, WS::ServerOptions());
+    server.serve(systemContextImpl, echoHandler, WS::ServerOptions());
   }
   catch (std::exception& exc)
   {

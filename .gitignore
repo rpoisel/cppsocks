@@ -36,3 +36,4 @@
 /.vscode/*.db-shm
 /.vscode/*.db-wal
 /.clangd/
+compile_commands.json

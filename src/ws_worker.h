@@ -4,6 +4,7 @@
 #include <system_context.h>
 #include <ws_handler.h>
 
+#include <atomic>
 #include <thread>
 
 namespace WS
@@ -12,35 +13,40 @@ namespace WS
 class ClientWorker
 {
   public:
-  ClientWorker(TcpSocketInstance socket, Server* server) : socket(std::move(socket)), conn{server}, thr{} {}
+  ClientWorker(TcpSocketInstance socket, ServerHandler& handler, Server* server)
+      : socket(std::move(socket)), handler(handler), conn{this->socket.get(), server}, _isActive(false), thr{}
+  {
+    start();
+  }
   ClientWorker(ClientWorker&& other)
-      : socket{std::move(other.socket)}, conn{std::move(other.conn)}, thr{std::move(other.thr)}
+      : socket{std::move(other.socket)},
+        handler(other.handler), conn{std::move(other.conn)}, _isActive{other._isActive ? true : false}, thr{std::move(
+                                                                                                            other.thr)}
   {
   }
   virtual ~ClientWorker() {}
 
-  void start() { thr = std::thread{&ClientWorker::run, this}; }
-  void run()
-  {
-    if (httpHandshake())
-    {
-      return;
-    }
-    wsHandshake();
-  }
+  void run();
   void finish() { thr.join(); }
-  bool isActive() const { return !thr.joinable(); }
+  bool isActive() const { return _isActive; }
 
   private:
   ClientWorker(ClientWorker&) = delete;
   ClientWorker& operator=(ClientWorker&) = delete;
   ClientWorker& operator=(ClientWorker&&) = delete;
 
-  bool httpHandshake() { return false; }
-  void wsHandshake() {}
+  void start()
+  {
+    _isActive = true;
+    thr = std::thread{&ClientWorker::run, this};
+  }
+  bool httpHandshake();
+  void wsLoop();
 
   TcpSocketInstance socket;
+  ServerHandler& handler;
   Connection conn;
+  std::atomic_bool _isActive;
   std::thread thr;
 };
 

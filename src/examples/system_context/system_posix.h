@@ -25,12 +25,8 @@ class PosixTcpSocket final : public WS::TcpSocket
     // make sure socket is non-blocking
   }
   ~PosixTcpSocket() override { ::close(fd); }
-  ssize_t read(std::array<std::uint8_t, MAX_SIZE>& buf) override
-  {
-    (void)buf;
-    return 0;
-  }
-  ssize_t write(void const* buf, std::size_t buflen) override { return ::write(fd, buf, buflen); }
+  ssize_t read(std::array<std::uint8_t, WS::MAX_SIZE>& buf) override { return ::recv(fd, buf.data(), buf.size(), 0); }
+  ssize_t write(void const* buf, std::size_t buflen) override { return ::send(fd, buf, buflen, 0); }
 
   private:
   PosixTcpSocket(PosixTcpSocket const&) = delete;

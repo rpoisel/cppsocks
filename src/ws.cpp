@@ -29,9 +29,7 @@ void Server::serve(SystemContext& systemContext, ServerHandler& handler, ServerO
     cleanup(workers);
     if (workers.size() < options.maxClients)
     {
-      ClientWorker clientWorker(std::move(clientSocket), this);
-      clientWorker.start();
-      workers.push_back(std::move(clientWorker));
+      workers.emplace_back(std::move(clientSocket), handler, this);
       continue;
     }
     constexpr auto const bye = "No more connections allowed.\n";

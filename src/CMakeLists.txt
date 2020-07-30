@@ -2,6 +2,7 @@ find_package(Threads)
 
 add_library(ws STATIC
   ws.cpp
+  ws_worker.cpp
 )
 
 target_include_directories(ws PUBLIC

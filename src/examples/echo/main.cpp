@@ -5,15 +5,26 @@
 #include <iostream>
 #include <set>
 
-class EchoHandler : public WS::ServerHandler
+using WS::Connection;
+using WS::ServerHandler;
+
+class EchoHandler final : public ServerHandler
 {
   public:
   EchoHandler() = default;
   ~EchoHandler() = default;
 
-  void onConnect(WS::Connection* connection) override { connections.insert(connection); }
-  void onDisconnect(WS::Connection* connection) override { connections.erase(connection); }
-  void onReceive(WS::Connection* connection, void const* buf, std::size_t len) override { connection->send(buf, len); }
+  void onConnect(Connection* connection) override
+  {
+    std::cout << "Connection established." << std::endl;
+    connections.insert(connection);
+  }
+  void onDisconnect(Connection* connection) override
+  {
+    connections.erase(connection);
+    std::cout << "Connection closed." << std::endl;
+  }
+  void onReceive(Connection* connection, void const* buf, std::size_t len) override { connection->send(buf, len); }
 
   private:
   EchoHandler(EchoHandler const&) = delete;

@@ -1,6 +1,7 @@
 #include <system_impl.h>
 #include <ws.h>
 
+#include <algorithm>
 #include <chrono>
 #include <exception>
 #include <iostream>
@@ -36,10 +37,7 @@ class PushHandler final : public ServerHandler
   void push(void const* buf, std::size_t len)
   {
     std::unique_lock<std::mutex> lk(mtx);
-    for (auto& connection : connections)
-    {
-      connection->send(buf, len);
-    }
+    std::for_each(connections.begin(), connections.end(), [&](Connection* connection) { connection->send(buf, len); });
   }
 
   private:

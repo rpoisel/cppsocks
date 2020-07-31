@@ -11,8 +11,14 @@ constexpr static int const BACKLOG = 5;
 TcpListenSocketInstance SystemContextImpl::createListenSocket(int port)
 {
   auto fd = ::socket(AF_INET, SOCK_STREAM, 0);
-  struct sockaddr_in addr;
 
+  int val = 1;
+  if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &val, (socklen_t)sizeof(val)) == -1)
+  {
+    throw std::runtime_error(strerror(errno));
+  }
+
+  struct sockaddr_in addr;
   if (fd == -1)
   {
     throw std::runtime_error(strerror(errno));

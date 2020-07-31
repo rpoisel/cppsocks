@@ -1,6 +1,9 @@
 #include <system_impl.h>
 #include <ws.h>
 
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
+
 #include <algorithm>
 #include <chrono>
 #include <exception>
@@ -21,7 +24,7 @@ class PushHandler final : public ServerHandler
 
   void onConnect(Connection* connection) override
   {
-    std::cout << "Connection established." << std::endl;
+    spdlog::info("Connection established.");
     std::unique_lock<std::mutex> lk(mtx);
     connections.insert(connection);
   }
@@ -31,7 +34,7 @@ class PushHandler final : public ServerHandler
       std::unique_lock<std::mutex> lk(mtx);
       connections.erase(connection);
     }
-    std::cout << "Connection closed." << std::endl;
+    spdlog::info("Connection closed.");
   }
   void onReceive(Connection* connection, void const* buf, std::size_t len) override { connection->send(buf, len); }
   void push(void const* buf, std::size_t len)
@@ -77,7 +80,7 @@ int main()
   }
   catch (std::exception& exc)
   {
-    std::cerr << "An error occured: " << exc.what() << std::endl;
+    spdlog::error("{}", exc.what());
     retVal = EXIT_FAILURE;
   }
   pusherThr.join();

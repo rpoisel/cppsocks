@@ -1,3 +1,6 @@
 [submodule "external/wslay"]
 	path = external/wslay
 	url = https://github.com/tatsuhiro-t/wslay.git
+[submodule "external/spdlog"]
+	path = external/spdlog
+	url = https://github.com/gabime/spdlog.git

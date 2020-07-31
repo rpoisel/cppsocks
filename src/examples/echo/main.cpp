@@ -1,6 +1,9 @@
 #include <system_impl.h>
 #include <ws.h>
 
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
+
 #include <exception>
 #include <iostream>
 #include <set>
@@ -17,14 +20,19 @@ class EchoHandler final : public ServerHandler
   void onConnect(Connection* connection) override
   {
     (void)connection;
-    std::cout << "Connection established." << std::endl;
+    spdlog::info("Connection established.");
   }
   void onDisconnect(Connection* connection) override
   {
     (void)connection;
-    std::cout << "Connection closed." << std::endl;
+    spdlog::info("Connection closed.");
   }
-  void onReceive(Connection* connection, void const* buf, std::size_t len) override { connection->send(buf, len); }
+  void onReceive(Connection* connection, void const* buf, std::size_t len) override
+  {
+    spdlog::info("Got message with length {} bytes.", len);
+    connection->send(buf, len);
+    spdlog::info("Sent message with length {} bytes.", len);
+  }
 
   private:
   EchoHandler(EchoHandler const&) = delete;
@@ -45,7 +53,7 @@ int main()
   }
   catch (std::exception& exc)
   {
-    std::cerr << "An error occured: " << exc.what() << std::endl;
+    spdlog::error("{}", exc.what());
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

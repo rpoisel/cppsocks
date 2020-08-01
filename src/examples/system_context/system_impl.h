@@ -43,12 +43,6 @@ class PosixTcpListenSocket final : public WS::TcpListenSocket
   explicit PosixTcpListenSocket(int fd) : fd{fd} {}
   ~PosixTcpListenSocket() override { ::close(fd); }
 
-  bool waitForConnection() override
-  {
-    std::this_thread::sleep_for(std::chrono::duration<uint32_t, std::milli>(100));
-    return true;
-  }
-
   WS::TcpSocketInstance accept() override
   {
     auto client_fd = ::accept(fd, nullptr, nullptr);

@@ -25,7 +25,6 @@ class TcpListenSocket
 {
   public:
   virtual ~TcpListenSocket() {}
-  virtual bool waitForConnection() = 0;
   virtual TcpSocketInstance accept() = 0;
 };
 

@@ -21,11 +21,11 @@ void Server::serve(SystemContext& systemContext, ServerHandler& handler, ServerO
   auto listenSocket = systemContext.createListenSocket(options.serverPort);
   for (;;)
   {
-    if (!listenSocket->waitForConnection())
+    auto clientSocket = listenSocket->accept();
+    if (!clientSocket.get())
     {
       continue;
     }
-    auto clientSocket = listenSocket->accept();
     cleanup(workers);
     if (workers.size() < options.maxClients)
     {

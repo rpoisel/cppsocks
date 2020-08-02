@@ -21,13 +21,13 @@ class WSException : public std::exception
 class NotImplementedException final : public WSException
 {
   public:
-  NotImplementedException(char const* msg) : WSException(msg) {}
+  explicit NotImplementedException(char const* msg) : WSException(msg) {}
 };
 
 class ResourceException final : public WSException
 {
   public:
-  ResourceException(char const* msg) : WSException(msg) {}
+  explicit ResourceException(char const* msg) : WSException(msg) {}
 };
 
 } // namespace WS

@@ -43,9 +43,11 @@ class EchoHandler final : public ServerHandler
 
 int main()
 {
-  SystemContextImpl systemContextImpl;
+  Posix::ContextImpl systemContextImpl;
   EchoHandler echoHandler;
   WS::Server server;
+
+  WS::System::initQuitCondition();
 
   try
   {

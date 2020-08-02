@@ -2,6 +2,7 @@
 #include <ws_types.h>
 #include <ws_worker.h>
 
+#include <algorithm>
 #include <cstring>
 #include <list>
 
@@ -12,14 +13,14 @@ using ClientWorkers = std::list<ClientWorker>;
 
 static void cleanup(ClientWorkers& workers);
 
-void Server::serve(SystemContext& systemContext, ServerHandler& handler, ServerOptions const& options)
+void Server::serve(Network::Context& systemContext, ServerHandler& handler, ServerOptions const& options)
 {
   (void)handler;
 
   ClientWorkers workers;
 
   auto listenSocket = systemContext.createListenSocket(options.serverPort);
-  for (;;)
+  while (!System::quitCondition())
   {
     auto clientSocket = listenSocket->accept();
     if (!clientSocket.get())
@@ -35,6 +36,7 @@ void Server::serve(SystemContext& systemContext, ServerHandler& handler, ServerO
     constexpr auto const bye = "No more connections allowed.\n";
     clientSocket->write(bye, std::strlen(bye));
   }
+  std::for_each(workers.begin(), workers.end(), [](ClientWorker& worker) { worker.finish(); });
 }
 
 static void cleanup(ClientWorkers& workers)

@@ -1,6 +1,6 @@
-#include <ws_worker.h>
-
+#include <system_context.h>
 #include <ws_types.h>
+#include <ws_worker.h>
 
 namespace WS
 {
@@ -23,13 +23,16 @@ void ClientWorker::wsLoop()
 {
   MsgBuf buf;
 
-  for (;;)
+  while (!System::quitCondition())
   {
     auto len = socket->read(buf);
-    if (len <= 0)
+    if (len == 0)
     {
-      // TODO check for errors
       break;
+    }
+    if (len == -1)
+    {
+      continue;
     }
     handler.onReceive(&conn, buf.data(), len);
   }

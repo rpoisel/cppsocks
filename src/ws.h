@@ -14,7 +14,7 @@ class Server
   public:
   Server() = default;
   virtual ~Server() = default;
-  void serve(SystemContext& systemContext, ServerHandler& handler, ServerOptions const& options);
+  void serve(Network::Context& systemContext, ServerHandler& handler, ServerOptions const& options);
 
   private:
   Server(Server&) = delete;

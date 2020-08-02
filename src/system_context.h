@@ -11,6 +11,9 @@
 namespace WS
 {
 
+namespace Network
+{
+
 class TcpSocket
 {
   public:
@@ -30,13 +33,18 @@ class TcpListenSocket
 
 using TcpListenSocketInstance = std::unique_ptr<TcpListenSocket>;
 
-class SystemContext
+class Context
 {
   public:
-  virtual ~SystemContext() {}
+  virtual ~Context() {}
   virtual TcpListenSocketInstance createListenSocket(int port) = 0;
 };
-
+} // namespace Network
+namespace System
+{
+void initQuitCondition();
+bool quitCondition();
+} // namespace System
 } // namespace WS
 
 #endif /* SYSTEM_CONTEXT_H */

@@ -11,7 +11,7 @@ namespace WS
 class Connection
 {
   public:
-  Connection(TcpSocket* socket, Server* server) : socket{socket}, _server{server} {}
+  Connection(Network::TcpSocket* socket, Server* server) : socket{socket}, _server{server} {}
   Connection(Connection&& other) : socket{other.socket}, _server{other._server} { other._server = nullptr; }
 
   Server* server() const { return _server; }
@@ -22,7 +22,7 @@ class Connection
   Connection& operator=(Connection&) = delete;
   Connection& operator=(Connection&&) = delete;
 
-  TcpSocket* socket;
+  Network::TcpSocket* socket;
   Server* _server;
 };
 

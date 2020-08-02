@@ -56,7 +56,7 @@ class PushHandler final : public ServerHandler
 static void pusherRunner(PushHandler& pushHandler)
 {
   std::stringstream msg;
-  for (std::size_t cnt = 0;; cnt++)
+  for (std::size_t cnt = 0; !WS::System::quitCondition(); cnt++)
   {
     msg.str("");
     msg.clear();
@@ -69,10 +69,12 @@ static void pusherRunner(PushHandler& pushHandler)
 int main()
 {
   int retVal = EXIT_SUCCESS;
-  SystemContextImpl systemContextImpl;
+  Posix::ContextImpl systemContextImpl;
   PushHandler pushHandler;
   WS::Server server;
   std::thread pusherThr{pusherRunner, std::ref(pushHandler)};
+
+  WS::System::initQuitCondition();
 
   try
   {

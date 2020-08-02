@@ -13,7 +13,7 @@ namespace WS
 class ClientWorker
 {
   public:
-  ClientWorker(TcpSocketInstance socket, ServerHandler& handler, Server* server)
+  ClientWorker(Network::TcpSocketInstance socket, ServerHandler& handler, Server* server)
       : socket(std::move(socket)), handler(handler), conn{this->socket.get(), server}, _isActive(false), thr{}
   {
     start();
@@ -43,7 +43,7 @@ class ClientWorker
   bool httpHandshake();
   void wsLoop();
 
-  TcpSocketInstance socket;
+  Network::TcpSocketInstance socket;
   ServerHandler& handler;
   Connection conn;
   std::atomic_bool _isActive;

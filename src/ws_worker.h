@@ -40,8 +40,7 @@ class ClientWorker
     _isActive = true;
     thr = std::thread{&ClientWorker::run, this};
   }
-  bool httpHandshake();
-  void wsLoop();
+  void loop();
 
   Network::TcpSocketInstance socket;
   ServerHandler& handler;

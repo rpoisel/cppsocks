@@ -8,18 +8,12 @@ namespace WS
 void ClientWorker::run()
 {
   handler.onConnect(&conn);
-  if (httpHandshake())
-  {
-    return;
-  }
-  wsLoop();
+  loop();
   handler.onDisconnect(&conn);
   _isActive = false;
 }
 
-bool ClientWorker::httpHandshake() { return false; }
-
-void ClientWorker::wsLoop()
+void ClientWorker::loop()
 {
   MsgBuf buf;
 

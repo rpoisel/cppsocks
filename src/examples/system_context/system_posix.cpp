@@ -15,11 +15,12 @@ constexpr static int const BACKLOG = 5;
 
 namespace Posix
 {
+static constexpr int const RETVAL_ERROR = -1;
 
 static void setSocketFlags(int fd, std::function<int(int)> manipulate)
 {
   int flags;
-  while ((flags = ::fcntl(fd, F_GETFL, 0)) == -1)
+  while ((flags = ::fcntl(fd, F_GETFL, 0)) == RETVAL_ERROR)
   {
     if (errno == EINTR)
     {
@@ -28,7 +29,7 @@ static void setSocketFlags(int fd, std::function<int(int)> manipulate)
     std::runtime_error(strerror(errno));
   }
   flags = manipulate(flags);
-  while (::fcntl(fd, F_SETFL, flags) == -1)
+  while (::fcntl(fd, F_SETFL, flags) == RETVAL_ERROR)
   {
     if (errno == EINTR)
     {
@@ -43,34 +44,38 @@ static void setSocketNonBlocking(int fd)
   setSocketFlags(fd, [](int flags) { return flags | O_NONBLOCK; });
 }
 
+static void setSocketReuseAddress(int fd)
+{
+  int val = 1;
+  if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &val, (socklen_t)sizeof(val)) == RETVAL_ERROR)
+  {
+    throw std::runtime_error(strerror(errno));
+  }
+}
+
 Network::TcpListenSocketInstance ContextImpl::createListenSocket(int port)
 {
   auto fd = ::socket(AF_INET, SOCK_STREAM, 0);
-
-  int val = 1;
-  if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &val, (socklen_t)sizeof(val)) == -1)
+  if (fd == RETVAL_ERROR)
   {
     throw std::runtime_error(strerror(errno));
   }
+  setSocketReuseAddress(fd);
 
   struct sockaddr_in addr;
-  if (fd == -1)
-  {
-    throw std::runtime_error(strerror(errno));
-  }
   addr.sin_family = AF_INET;
   addr.sin_port = htons(port);
   addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
   auto rc = ::bind(fd, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr));
-  if (rc == -1)
+  if (rc == RETVAL_ERROR)
   {
     close(fd);
     throw std::runtime_error(strerror(errno));
   }
 
   rc = ::listen(fd, BACKLOG);
-  if (rc == -1)
+  if (rc == RETVAL_ERROR)
   {
     close(fd);
     throw std::runtime_error(strerror(errno));
@@ -87,7 +92,7 @@ ssize_t Posix::TcpSocketImpl::read(std::array<std::uint8_t, WS::MAX_SIZE>& buf)
   {
     if (errno == EINTR || errno == EWOULDBLOCK)
     {
-      return -1;
+      return Network::TcpSocket::NUM_CONTINUE;
     }
     throw std::runtime_error(strerror(errno));
   }
@@ -108,7 +113,7 @@ WS::Network::TcpSocketInstance PosixTcpListenSocket::accept()
   FD_ZERO(&read_fds);
   FD_SET(fd, &read_fds);
   auto r = ::select(fd + 1, &read_fds, nullptr, nullptr, &timeout);
-  if (r == -1)
+  if (r == RETVAL_ERROR)
   {
     if (errno != EINTR)
     {
@@ -121,7 +126,7 @@ WS::Network::TcpSocketInstance PosixTcpListenSocket::accept()
   }
 
   auto client_fd = ::accept(fd, nullptr, nullptr);
-  if (client_fd == -1)
+  if (client_fd == RETVAL_ERROR)
   {
     if (errno == EAGAIN || errno == EWOULDBLOCK)
     {
@@ -138,6 +143,12 @@ WS::Network::TcpSocketInstance PosixTcpListenSocket::accept()
 
 namespace WS
 {
+
+namespace Network
+{
+ssize_t const TcpSocket::NUM_EOF = 0;
+ssize_t const TcpSocket::NUM_CONTINUE = -1;
+} // namespace Network
 namespace System
 {
 constexpr std::sig_atomic_t const NO_SIGNAL = 0;

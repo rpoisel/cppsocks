@@ -20,11 +20,11 @@ void ClientWorker::loop()
   while (!System::quitCondition())
   {
     auto len = socket->read(buf);
-    if (len == 0)
+    if (len == Network::TcpSocket::NUM_EOF)
     {
       break;
     }
-    if (len == -1)
+    if (len == Network::TcpSocket::NUM_CONTINUE)
     {
       continue;
     }

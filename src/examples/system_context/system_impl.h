@@ -1,7 +1,7 @@
 #ifndef SYSTEM_POSIX_H
 #define SYSTEM_POSIX_H
 
-#include <ws.h>
+#include <socks_tcp.h>
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -14,48 +14,56 @@
 namespace Posix
 {
 
-class ContextImpl final : public WS::Network::Context
+namespace Network
+{
+namespace Tcp
+{
+
+class ContextImpl final : public Socks::Network::Tcp::Context
 {
   public:
-  virtual WS::Network::TcpListenSocketInstance createListenSocket(int port);
+  virtual Socks::Network::Tcp::ListenSocketInstance createListenSocket(int port);
 };
 
-class TcpSocketImpl final : public WS::Network::TcpSocket
+class SocketImpl final : public Socks::Network::Tcp::Socket
 {
   public:
-  explicit TcpSocketImpl(int fd) : fd(fd)
+  explicit SocketImpl(int fd) : fd(fd)
   {
     // make sure socket is non-blocking
   }
-  ~TcpSocketImpl() override { ::close(fd); }
-  ssize_t read(std::array<std::uint8_t, WS::MAX_SIZE>& buf) override;
+  ~SocketImpl() override { ::close(fd); }
+  ssize_t read(std::array<std::uint8_t, Socks::Network::Tcp::MAX_SIZE>& buf) override;
   ssize_t write(void const* buf, std::size_t buflen) override;
 
   private:
-  TcpSocketImpl(TcpSocketImpl const&) = delete;
-  TcpSocketImpl& operator=(TcpSocketImpl const&) = delete;
-  TcpSocketImpl(TcpSocketImpl&&) = delete;
-  TcpSocketImpl& operator=(TcpSocketImpl&&) = delete;
+  SocketImpl(SocketImpl const&) = delete;
+  SocketImpl& operator=(SocketImpl const&) = delete;
+  SocketImpl(SocketImpl&&) = delete;
+  SocketImpl& operator=(SocketImpl&&) = delete;
 
   int const fd;
 };
 
-class PosixTcpListenSocket final : public WS::Network::TcpListenSocket
+class ListenSocket final : public Socks::Network::Tcp::ListenSocket
 {
   public:
-  explicit PosixTcpListenSocket(int fd) : fd{fd} {}
-  ~PosixTcpListenSocket() override { ::close(fd); }
+  explicit ListenSocket(int fd) : fd{fd} {}
+  ~ListenSocket() override { ::close(fd); }
 
-  WS::Network::TcpSocketInstance accept() override;
+  Socks::Network::Tcp::SocketInstance accept() override;
 
   private:
-  PosixTcpListenSocket(PosixTcpListenSocket const&) = delete;
-  PosixTcpListenSocket& operator=(PosixTcpListenSocket const&) = delete;
-  PosixTcpListenSocket(PosixTcpListenSocket&&) = delete;
-  PosixTcpListenSocket& operator=(PosixTcpListenSocket&&) = delete;
+  ListenSocket(ListenSocket const&) = delete;
+  ListenSocket& operator=(ListenSocket const&) = delete;
+  ListenSocket(ListenSocket&&) = delete;
+  ListenSocket& operator=(ListenSocket&&) = delete;
 
   int const fd;
 };
+
+} // namespace Tcp
+} // namespace Network
 
 } // namespace Posix
 

@@ -9,11 +9,15 @@
 #include <csignal>
 #include <functional>
 
-using namespace WS;
+using namespace Socks;
 
 constexpr static int const BACKLOG = 5;
 
 namespace Posix
+{
+namespace Network
+{
+namespace Tcp
 {
 static constexpr int const RETVAL_ERROR = -1;
 
@@ -53,7 +57,7 @@ static void setSocketReuseAddress(int fd)
   }
 }
 
-Network::TcpListenSocketInstance ContextImpl::createListenSocket(int port)
+Socks::Network::Tcp::ListenSocketInstance ContextImpl::createListenSocket(int port)
 {
   auto fd = ::socket(AF_INET, SOCK_STREAM, 0);
   if (fd == RETVAL_ERROR)
@@ -81,10 +85,10 @@ Network::TcpListenSocketInstance ContextImpl::createListenSocket(int port)
     throw std::runtime_error(strerror(errno));
   }
   setSocketNonBlocking(fd);
-  return Network::TcpListenSocketInstance(new PosixTcpListenSocket(fd));
+  return Socks::Network::Tcp::ListenSocketInstance(new ListenSocket(fd));
 }
 
-ssize_t Posix::TcpSocketImpl::read(std::array<std::uint8_t, WS::MAX_SIZE>& buf)
+ssize_t SocketImpl::read(std::array<std::uint8_t, Socks::Network::Tcp::MAX_SIZE>& buf)
 {
   ssize_t numRecv;
   numRecv = ::recv(fd, buf.data(), buf.size(), 0);
@@ -92,7 +96,7 @@ ssize_t Posix::TcpSocketImpl::read(std::array<std::uint8_t, WS::MAX_SIZE>& buf)
   {
     if (errno == EINTR || errno == EWOULDBLOCK)
     {
-      return Network::TcpSocket::NUM_CONTINUE;
+      return Socks::Network::Tcp::Socket::NUM_CONTINUE;
     }
     throw std::runtime_error(strerror(errno));
   }
@@ -100,9 +104,9 @@ ssize_t Posix::TcpSocketImpl::read(std::array<std::uint8_t, WS::MAX_SIZE>& buf)
   return numRecv;
 }
 
-ssize_t Posix::TcpSocketImpl::write(void const* buf, std::size_t buflen) { return ::send(fd, buf, buflen, 0); }
+ssize_t SocketImpl::write(void const* buf, std::size_t buflen) { return ::send(fd, buf, buflen, 0); }
 
-WS::Network::TcpSocketInstance PosixTcpListenSocket::accept()
+Socks::Network::Tcp::SocketInstance ListenSocket::accept()
 {
   struct timeval timeout
   {
@@ -122,7 +126,7 @@ WS::Network::TcpSocketInstance PosixTcpListenSocket::accept()
   }
   else if (r == 0)
   {
-    return WS::Network::TcpSocketInstance(nullptr);
+    return Socks::Network::Tcp::SocketInstance(nullptr);
   }
 
   auto client_fd = ::accept(fd, nullptr, nullptr);
@@ -130,24 +134,29 @@ WS::Network::TcpSocketInstance PosixTcpListenSocket::accept()
   {
     if (errno == EAGAIN || errno == EWOULDBLOCK)
     {
-      return WS::Network::TcpSocketInstance(nullptr);
+      return Socks::Network::Tcp::SocketInstance(nullptr);
     }
     throw std::runtime_error(strerror(errno));
   }
   setSocketNonBlocking(client_fd);
-  return WS::Network::TcpSocketInstance(new TcpSocketImpl(client_fd));
+  return Socks::Network::Tcp::SocketInstance(new SocketImpl(client_fd));
 }
 
 
+} // namespace Tcp
+} // namespace Network
 } // namespace Posix
 
-namespace WS
+namespace Socks
 {
 
 namespace Network
 {
-ssize_t const TcpSocket::NUM_EOF = 0;
-ssize_t const TcpSocket::NUM_CONTINUE = -1;
+namespace Tcp
+{
+ssize_t const Socket::NUM_EOF = 0;
+ssize_t const Socket::NUM_CONTINUE = -1;
+} // namespace Tcp
 } // namespace Network
 namespace System
 {
@@ -163,4 +172,4 @@ void initQuitCondition()
 }
 bool quitCondition() { return signalStatus != NO_SIGNAL; }
 } // namespace System
-} // namespace WS
+} // namespace Socks

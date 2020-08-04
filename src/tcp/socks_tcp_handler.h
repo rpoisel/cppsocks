@@ -1,17 +1,22 @@
-#ifndef WS_HANDLER_H
-#define WS_HANDLER_H
+#ifndef SOCKS_TCP_HANDLER_H
+#define SOCKS_TCP_HANDLER_H
 
-#include <system_context.h>
-#include <ws_fwd.h>
+#include <socks_system_context.h>
+#include <socks_tcp_fwd.h>
 
 #include <cstddef>
 
-namespace WS
+namespace Socks
+{
+
+namespace Network
+{
+namespace Tcp
 {
 class Connection
 {
   public:
-  Connection(Network::TcpSocket* socket, Server* server) : socket{socket}, _server{server} {}
+  Connection(Network::Tcp::Socket* socket, Server* server) : socket{socket}, _server{server} {}
   Connection(Connection&& other) : socket{other.socket}, _server{other._server} { other._server = nullptr; }
 
   Server* server() const { return _server; }
@@ -22,7 +27,7 @@ class Connection
   Connection& operator=(Connection&) = delete;
   Connection& operator=(Connection&&) = delete;
 
-  Network::TcpSocket* socket;
+  Network::Tcp::Socket* socket;
   Server* _server;
 };
 
@@ -35,6 +40,9 @@ class ServerHandler
   virtual void onReceive(Connection* connection, void const* buf, std::size_t len) = 0;
 };
 
-} // namespace WS
+} // namespace Tcp
+} // namespace Network
 
-#endif // WS_HANDLER_H
+} // namespace Socks
+
+#endif // SOCKS_TCP_HANDLER_H

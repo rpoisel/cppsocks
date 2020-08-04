@@ -1,5 +1,5 @@
+#include <socks_tcp.h>
 #include <system_impl.h>
-#include <ws.h>
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
@@ -13,8 +13,8 @@
 #include <sstream>
 #include <thread>
 
-using WS::Connection;
-using WS::ServerHandler;
+using Socks::Network::Tcp::Connection;
+using Socks::Network::Tcp::ServerHandler;
 
 class PushHandler final : public ServerHandler
 {
@@ -49,14 +49,14 @@ class PushHandler final : public ServerHandler
   PushHandler(PushHandler&&) = delete;
   PushHandler& operator=(PushHandler&&) = delete;
 
-  std::set<WS::Connection*> connections;
+  std::set<Connection*> connections;
   std::mutex mtx;
 };
 
 static void pusherRunner(PushHandler& pushHandler)
 {
   std::stringstream msg;
-  for (std::size_t cnt = 0; !WS::System::quitCondition(); cnt++)
+  for (std::size_t cnt = 0; !Socks::System::quitCondition(); cnt++)
   {
     msg.str("");
     msg.clear();
@@ -69,16 +69,16 @@ static void pusherRunner(PushHandler& pushHandler)
 int main()
 {
   int retVal = EXIT_SUCCESS;
-  Posix::ContextImpl systemContextImpl;
+  Posix::Network::Tcp::ContextImpl systemContextImpl;
   PushHandler pushHandler;
-  WS::Server server;
+  Socks::Network::Tcp::Server server;
   std::thread pusherThr{pusherRunner, std::ref(pushHandler)};
 
-  WS::System::initQuitCondition();
+  Socks::System::initQuitCondition();
 
   try
   {
-    server.serve(systemContextImpl, pushHandler, WS::ServerOptions());
+    server.serve(systemContextImpl, pushHandler, Socks::Network::Tcp::ServerOptions());
   }
   catch (std::exception& exc)
   {

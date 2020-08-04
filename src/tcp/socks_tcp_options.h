@@ -1,9 +1,14 @@
-#ifndef WS_OPTIONS_H
-#define WS_OPTIONS_H
+#ifndef SOCKS_TCP_OPTIONS_H
+#define SOCKS_TCP_OPTIONS_H
 
 #include <cstddef>
 
-namespace WS
+namespace Socks
+{
+
+namespace Network
+{
+namespace Tcp
 {
 struct ServerOptions
 {
@@ -11,6 +16,8 @@ struct ServerOptions
   int const serverPort;
   std::size_t const maxClients;
 };
-} // namespace WS
+} // namespace Tcp
+} // namespace Network
+} // namespace Socks
 
-#endif // WS_OPTIONS_H
+#endif // SOCKS_TCP_OPTIONS_H

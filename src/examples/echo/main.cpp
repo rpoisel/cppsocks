@@ -1,5 +1,5 @@
+#include <socks_tcp.h>
 #include <system_impl.h>
-#include <ws.h>
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
@@ -8,8 +8,8 @@
 #include <iostream>
 #include <set>
 
-using WS::Connection;
-using WS::ServerHandler;
+using Socks::Network::Tcp::Connection;
+using Socks::Network::Tcp::ServerHandler;
 
 class EchoHandler final : public ServerHandler
 {
@@ -43,15 +43,15 @@ class EchoHandler final : public ServerHandler
 
 int main()
 {
-  Posix::ContextImpl systemContextImpl;
+  Posix::Network::Tcp::ContextImpl systemContextImpl;
   EchoHandler echoHandler;
-  WS::Server server;
+  Socks::Network::Tcp::Server server;
 
-  WS::System::initQuitCondition();
+  Socks::System::initQuitCondition();
 
   try
   {
-    server.serve(systemContextImpl, echoHandler, WS::ServerOptions());
+    server.serve(systemContextImpl, echoHandler, Socks::Network::Tcp::ServerOptions());
   }
   catch (std::exception& exc)
   {

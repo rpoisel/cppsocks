@@ -1,25 +1,30 @@
-#include <ws.h>
-#include <ws_types.h>
-#include <ws_worker.h>
+#include <socks_tcp.h>
+#include <socks_tcp_types.h>
+#include <socks_tcp_worker.h>
 
 #include <algorithm>
 #include <cstring>
 #include <list>
 
-namespace WS
+namespace Socks
+{
+
+namespace Network
+{
+namespace Tcp
 {
 
 using ClientWorkers = std::list<ClientWorker>;
 
 static void cleanup(ClientWorkers& workers);
 
-void Server::serve(Network::Context& systemContext, ServerHandler& handler, ServerOptions const& options)
+void Server::serve(Context& context, ServerHandler& handler, ServerOptions const& options)
 {
   (void)handler;
 
   ClientWorkers workers;
 
-  auto listenSocket = systemContext.createListenSocket(options.serverPort);
+  auto listenSocket = context.createListenSocket(options.serverPort);
   while (!System::quitCondition())
   {
     auto clientSocket = listenSocket->accept();
@@ -51,4 +56,7 @@ static void cleanup(ClientWorkers& workers)
   });
 }
 
-} // namespace WS
+} // namespace Tcp
+} // namespace Network
+
+} // namespace Socks

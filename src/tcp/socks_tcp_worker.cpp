@@ -1,8 +1,13 @@
-#include <system_context.h>
-#include <ws_types.h>
-#include <ws_worker.h>
+#include <socks_system_context.h>
+#include <socks_tcp_types.h>
+#include <socks_tcp_worker.h>
 
-namespace WS
+namespace Socks
+{
+
+namespace Network
+{
+namespace Tcp
 {
 
 void ClientWorker::run()
@@ -20,11 +25,11 @@ void ClientWorker::loop()
   while (!System::quitCondition())
   {
     auto len = socket->read(buf);
-    if (len == Network::TcpSocket::NUM_EOF)
+    if (len == Socket::NUM_EOF)
     {
       break;
     }
-    if (len == Network::TcpSocket::NUM_CONTINUE)
+    if (len == Socket::NUM_CONTINUE)
     {
       continue;
     }
@@ -32,4 +37,7 @@ void ClientWorker::loop()
   }
 }
 
-} // namespace WS
+} // namespace Tcp
+} // namespace Network
+
+} // namespace Socks

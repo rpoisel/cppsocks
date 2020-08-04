@@ -1,19 +1,23 @@
-#ifndef WS_WORKER_H
-#define WS_WORKER_H
+#ifndef SOCKS_TCP_WORKER_H
+#define SOCKS_TCP_WORKER_H
 
-#include <system_context.h>
-#include <ws_handler.h>
+#include <socks_system_context.h>
+#include <socks_tcp_handler.h>
 
 #include <atomic>
 #include <thread>
 
-namespace WS
+namespace Socks
+{
+namespace Network
+{
+namespace Tcp
 {
 
 class ClientWorker
 {
   public:
-  ClientWorker(Network::TcpSocketInstance socket, ServerHandler& handler, Server* server)
+  ClientWorker(SocketInstance socket, ServerHandler& handler, Server* server)
       : socket(std::move(socket)), handler(handler), conn{this->socket.get(), server}, _isActive(false), thr{}
   {
     start();
@@ -42,13 +46,15 @@ class ClientWorker
   }
   void loop();
 
-  Network::TcpSocketInstance socket;
+  SocketInstance socket;
   ServerHandler& handler;
   Connection conn;
   std::atomic_bool _isActive;
   std::thread thr;
 };
+} // namespace Tcp
+} // namespace Network
 
-} // namespace WS
+} // namespace Socks
 
-#endif /* WS_WORKER _H */
+#endif /* SOCKS_TCP_WORKER _H */

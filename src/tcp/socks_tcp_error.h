@@ -1,10 +1,10 @@
-#ifndef WS_ERROR_H
-#define WS_ERROR_H
+#ifndef SOCKS_TCP_ERROR_H
+#define SOCKS_TCP_ERROR_H
 
 #include <exception>
 #include <string>
 
-namespace WS
+namespace Socks
 {
 
 class WSException : public std::exception
@@ -30,6 +30,6 @@ class ResourceException final : public WSException
   explicit ResourceException(char const* msg) : WSException(msg) {}
 };
 
-} // namespace WS
+} // namespace Socks
 
-#endif // WS_ERROR_H
+#endif // SOCKS_TCP_ERROR_H

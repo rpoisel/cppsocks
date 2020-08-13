@@ -1,3 +1,3 @@
 add_subdirectory(system_context)
-add_subdirectory(echo)
-add_subdirectory(push)
+add_subdirectory(tcp_echo)
+add_subdirectory(tcp_push)

@@ -12,7 +12,6 @@ target_include_directories(socks_tcp PUBLIC
 target_link_libraries(socks_tcp PUBLIC
   Threads::Threads
   spdlog
-  wslay
  )
 
 target_compile_options(socks_tcp PUBLIC

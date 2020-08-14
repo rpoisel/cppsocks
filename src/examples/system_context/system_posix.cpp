@@ -106,6 +106,8 @@ ssize_t SocketImpl::read(std::array<std::uint8_t, Socks::Network::Tcp::MAX_SIZE>
 
 ssize_t SocketImpl::write(void const* buf, std::size_t buflen) { return ::send(fd, buf, buflen, 0); }
 
+void SocketImpl::close() { ::close(fd); }
+
 Socks::Network::Tcp::SocketInstance ListenSocket::accept()
 {
   struct timeval timeout

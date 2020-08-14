@@ -32,9 +32,10 @@ class SocketImpl final : public Socks::Network::Tcp::Socket
   {
     // make sure socket is non-blocking
   }
-  ~SocketImpl() override { ::close(fd); }
+  ~SocketImpl() override {}
   ssize_t read(std::array<std::uint8_t, Socks::Network::Tcp::MAX_SIZE>& buf) override;
   ssize_t write(void const* buf, std::size_t buflen) override;
+  void close() override;
 
   private:
   SocketImpl(SocketImpl const&) = delete;

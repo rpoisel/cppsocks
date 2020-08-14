@@ -10,7 +10,7 @@ namespace Network
 {
 namespace Tcp
 {
-constexpr std::size_t const MAX_SIZE = 1024;
+constexpr std::size_t const MAX_SIZE = 4096;
 
 using Byte = std::uint8_t;
 using MsgBuf = std::array<Byte, MAX_SIZE>;

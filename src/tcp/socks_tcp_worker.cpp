@@ -15,6 +15,7 @@ void ClientWorker::run()
   handler.onConnect(&conn);
   loop();
   handler.onDisconnect(&conn);
+  socket->close();
   _isActive = false;
 }
 
@@ -22,7 +23,7 @@ void ClientWorker::loop()
 {
   MsgBuf buf;
 
-  while (!System::quitCondition())
+  while (!System::quitCondition() && !conn.isClosed())
   {
     auto len = socket->read(buf);
     if (len == Socket::NUM_EOF)

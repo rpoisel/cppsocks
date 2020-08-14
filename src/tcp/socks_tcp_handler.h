@@ -16,11 +16,17 @@ namespace Tcp
 class Connection
 {
   public:
-  Connection(Network::Tcp::Socket* socket, Server* server) : socket{socket}, _server{server} {}
-  Connection(Connection&& other) : socket{other.socket}, _server{other._server} { other._server = nullptr; }
+  Connection(Network::Tcp::Socket* socket, Server* server) : socket{socket}, _server{server}, closed{false} {}
+  Connection(Connection&& other) : socket{other.socket}, _server{other._server}, closed{other.closed}
+  {
+    other.socket = nullptr;
+    other._server = nullptr;
+  }
 
   Server* server() const { return _server; }
   void send(void const* buf, std::size_t len) { socket->write(buf, len); }
+  void close() { closed = true; }
+  bool isClosed() const { return closed; }
 
   private:
   Connection(Connection&) = delete;
@@ -29,6 +35,7 @@ class Connection
 
   Network::Tcp::Socket* socket;
   Server* _server;
+  bool closed;
 };
 
 class ServerHandler

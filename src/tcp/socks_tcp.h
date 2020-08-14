@@ -14,12 +14,12 @@ namespace Network
 namespace Tcp
 {
 
-class Server
+class Server final
 {
   public:
   Server() = default;
-  virtual ~Server() = default;
-  void serve(Context& context, ServerHandler& handler, ServerOptions const& options);
+  ~Server() = default;
+  void serve(Context& context, ServerHandler& handler, ServerOptions const& options = ServerOptions());
 
   private:
   Server(Server&) = delete;

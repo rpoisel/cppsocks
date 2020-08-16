@@ -3,5 +3,6 @@ project(cppsocks)
 
 include(cmake/StaticAnalyzers.cmake)
 
-add_subdirectory(external)
 add_subdirectory(src)
+add_subdirectory(examples)
+add_subdirectory(test)

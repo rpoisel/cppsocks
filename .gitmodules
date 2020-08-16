@@ -1,6 +1,9 @@
 [submodule "external/wslay"]
-	path = external/wslay
+	path = src/external/wslay
 	url = https://github.com/tatsuhiro-t/wslay.git
 [submodule "external/spdlog"]
-	path = external/spdlog
+	path = src/external/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "test/external/Catch2"]
+	path = test/external/Catch2
+	url = https://github.com/catchorg/Catch2.git

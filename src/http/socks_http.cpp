@@ -16,7 +16,7 @@ namespace Http
 class TcpServerHandler final : public Socks::Network::Tcp::ServerHandler
 {
   public:
-  explicit TcpServerHandler(Socks::Network::Http::HttpHandler& httpHandler) : httpHandler{httpHandler} {}
+  explicit TcpServerHandler(Socks::Network::Http::HttpHandler& httpHandler) : httpHandler(httpHandler) {}
   ~TcpServerHandler() = default;
 
   void onConnect(Socks::Network::Tcp::Connection* connection) { (void)connection; }

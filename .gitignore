@@ -37,3 +37,4 @@
 /.vscode/*.db-wal
 /.clangd/
 compile_commands.json
+**/*/__pycache__/

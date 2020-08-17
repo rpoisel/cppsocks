@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.9)
 project(cppsocks)
 
+enable_testing()
+
 include(cmake/StaticAnalyzers.cmake)
 
 add_subdirectory(src)

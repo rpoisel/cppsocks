@@ -86,10 +86,12 @@ before_script:
   - if [ -n "$GCC_VERSION" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
   - if [ -n "$CLANG_VERSION" ]; then export CXX="clang++-${CLANG_VERSION}" CC="clang-${CLANG_VERSION}"; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export CXX="clang++" CC="clang"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -y install python3-pip; fi
   - which $CXX
   - which $CC
   - $CXX --version
   - cmake --version
+  - pip3 install pytest
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
@@ -103,3 +105,7 @@ script:
       -DCMAKE_CXX_FLAGS_INIT="-Wall -Wextra"
 
   - make VERBOSE=1 -j2
+  # unit tests
+  - ctest -j2 --output-on-failure
+  # integration tests
+  - pytest ../test/test_tcp.py

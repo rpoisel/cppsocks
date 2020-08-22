@@ -2,7 +2,7 @@
 
 #include <fcntl.h>
 #include <netinet/in.h>
-#include <sys/select.h>
+#include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -65,6 +65,7 @@ Socks::Network::Tcp::ListenSocketInstance ContextImpl::createListenSocket(int po
     throw std::runtime_error(strerror(errno));
   }
   setSocketReuseAddress(fd);
+  setSocketNonBlocking(fd);
 
   struct sockaddr_in addr;
   addr.sin_family = AF_INET;
@@ -84,7 +85,6 @@ Socks::Network::Tcp::ListenSocketInstance ContextImpl::createListenSocket(int po
     close(fd);
     throw std::runtime_error(strerror(errno));
   }
-  setSocketNonBlocking(fd);
   return Socks::Network::Tcp::ListenSocketInstance(new ListenSocket(fd));
 }
 
@@ -105,42 +105,39 @@ ssize_t SocketImpl::read(std::array<std::uint8_t, Socks::Network::Tcp::MAX_SIZE>
 }
 
 ssize_t SocketImpl::write(void const* buf, std::size_t buflen) { return ::send(fd, buf, buflen, 0); }
-
-void SocketImpl::close() { ::close(fd); }
-
-Socks::Network::Tcp::SocketInstance ListenSocket::accept()
+bool internalPoll(int fd, short int flags, int timeout)
 {
-  struct timeval timeout
+  struct pollfd pollFd = {.fd = fd, .events = flags, .revents = 0};
+  auto r = poll(&pollFd, 1, timeout);
+  if (r == -1)
   {
-    0, 10000
-  };
-  fd_set read_fds;
-
-  FD_ZERO(&read_fds);
-  FD_SET(fd, &read_fds);
-  auto r = ::select(fd + 1, &read_fds, nullptr, nullptr, &timeout);
-  if (r == RETVAL_ERROR)
-  {
-    if (errno != EINTR)
+    if (errno != EINTR && errno != EAGAIN)
     {
       throw std::runtime_error(strerror(errno));
     }
   }
-  else if (r == 0)
+
+  return r != 0 && (pollFd.revents & flags);
+}
+bool SocketImpl::isReadable() const { return internalPoll(fd, POLLIN, 10 /* ms */); }
+bool SocketImpl::isWriteable() const { return internalPoll(fd, POLLOUT, 0); }
+void SocketImpl::close() { ::close(fd); }
+
+Socks::Network::Tcp::SocketInstance ListenSocket::accept()
+{
+  if (!internalPoll(fd, POLLIN, 10 /* ms */))
   {
     return Socks::Network::Tcp::SocketInstance(nullptr);
   }
-
   auto client_fd = ::accept(fd, nullptr, nullptr);
   if (client_fd == RETVAL_ERROR)
   {
-    if (errno == EAGAIN || errno == EWOULDBLOCK)
+    if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
     {
       return Socks::Network::Tcp::SocketInstance(nullptr);
     }
     throw std::runtime_error(strerror(errno));
   }
-  setSocketNonBlocking(client_fd);
   return Socks::Network::Tcp::SocketInstance(new SocketImpl(client_fd));
 }
 

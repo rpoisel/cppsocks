@@ -39,6 +39,7 @@ class TcpServerHandler final : public Socks::Network::Tcp::ServerHandler
 
     connection->close();
   }
+  void canSend(Socks::Network::Tcp::Connection* connection) { (void)connection; }
 
   private:
   Socks::Network::Http::HttpHandler& httpHandler;

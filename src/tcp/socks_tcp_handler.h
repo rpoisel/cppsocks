@@ -45,6 +45,7 @@ class ServerHandler
   virtual void onConnect(Connection* connection) = 0;
   virtual void onDisconnect(Connection* connection) = 0;
   virtual void onReceive(Connection* connection, void const* buf, std::size_t len) = 0;
+  virtual void canSend(Connection* connection) = 0;
 };
 
 } // namespace Tcp

@@ -33,6 +33,7 @@ class EchoHandler final : public ServerHandler
     connection->send(buf, len);
     spdlog::info("Sent message with length {} bytes.", len);
   }
+  void canSend(Socks::Network::Tcp::Connection* connection) { (void)connection; }
 
   private:
   EchoHandler(EchoHandler const&) = delete;

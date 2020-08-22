@@ -37,6 +37,7 @@ class PushHandler final : public ServerHandler
     spdlog::info("Connection closed.");
   }
   void onReceive(Connection* connection, void const* buf, std::size_t len) override { connection->send(buf, len); }
+  void canSend(Socks::Network::Tcp::Connection* connection) { (void)connection; }
   void push(void const* buf, std::size_t len)
   {
     std::unique_lock<std::mutex> lk(mtx);

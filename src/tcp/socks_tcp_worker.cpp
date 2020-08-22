@@ -25,16 +25,23 @@ void ClientWorker::loop()
 
   while (!System::quitCondition() && !conn.isClosed())
   {
-    auto len = socket->read(buf);
-    if (len == Socket::NUM_EOF)
+    if (socket->isReadable())
     {
-      break;
+      auto len = socket->read(buf);
+      if (len == Socket::NUM_EOF)
+      {
+        break;
+      }
+      if (len == Socket::NUM_CONTINUE)
+      {
+        continue;
+      }
+      handler.onReceive(&conn, buf.data(), len);
     }
-    if (len == Socket::NUM_CONTINUE)
+    if (socket->isWriteable())
     {
-      continue;
+      handler.canSend(&conn);
     }
-    handler.onReceive(&conn, buf.data(), len);
   }
 }
 

@@ -25,6 +25,8 @@ class Socket
   virtual ~Socket() {}
   virtual ssize_t read(MsgBuf& buf) = 0;
   virtual ssize_t write(void const* buf, std::size_t buflen) = 0;
+  virtual bool isReadable() const = 0;
+  virtual bool isWriteable() const = 0;
   virtual void close() = 0;
 };
 

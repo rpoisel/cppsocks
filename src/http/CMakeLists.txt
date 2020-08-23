@@ -9,4 +9,5 @@ target_include_directories(socks_http PUBLIC
 
 target_link_libraries(socks_http PRIVATE
   socks_tcp
+  wslay
 )

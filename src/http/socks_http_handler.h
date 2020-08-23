@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <string>
 
 namespace Socks
@@ -18,6 +19,7 @@ enum RequestType : std::uint8_t
 {
   UNDEFINED = 0,
   GET,
+  GET_WS,
 };
 
 class RequestInfo
@@ -76,6 +78,17 @@ class HttpHandler
   virtual void do_GET(HttpConnection* connection, RequestInfo const* requestInfo) = 0;
 };
 
+using HttpHandlerInstance = std::unique_ptr<HttpHandler>;
+
+class HttpHandlerFactory
+{
+  public:
+  HttpHandlerFactory() = default;
+  virtual ~HttpHandlerFactory() = default;
+
+  virtual HttpHandlerInstance createHttpHandler() = 0;
+};
+
 class HttpFileHandler final : public HttpHandler
 {
   public:
@@ -85,6 +98,18 @@ class HttpFileHandler final : public HttpHandler
 
   private:
   std::string const basePath;
+};
+
+class HttpFileHandlerFactory final : public HttpHandlerFactory
+{
+  public:
+  HttpFileHandlerFactory(std::string const& basePath) : basePath(basePath) {}
+  ~HttpFileHandlerFactory() = default;
+
+  HttpHandlerInstance createHttpHandler() { return HttpHandlerInstance(new HttpFileHandler(basePath)); }
+
+  private:
+  std::string const& basePath;
 };
 
 class WSHandler

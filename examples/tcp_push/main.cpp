@@ -8,6 +8,7 @@
 #include <chrono>
 #include <exception>
 #include <iostream>
+#include <memory>
 #include <mutex>
 #include <set>
 #include <sstream>
@@ -15,29 +16,27 @@
 
 using Socks::Network::Tcp::Connection;
 using Socks::Network::Tcp::ServerHandler;
+using Socks::Network::Tcp::ServerHandlerFactory;
+using Socks::Network::Tcp::ServerHandlerInstance;
 
-class PushHandler final : public ServerHandler
+class ConnMgr final
 {
   public:
-  PushHandler() = default;
-  ~PushHandler() = default;
+  ConnMgr() = default;
+  ~ConnMgr() = default;
 
-  void onConnect(Connection* connection) override
+  void addConn(Connection* connection)
   {
-    spdlog::info("Connection established.");
     std::unique_lock<std::mutex> lk(mtx);
     connections.insert(connection);
   }
-  void onDisconnect(Connection* connection) override
+
+  void delConn(Connection* connection)
   {
-    {
-      std::unique_lock<std::mutex> lk(mtx);
-      connections.erase(connection);
-    }
-    spdlog::info("Connection closed.");
+    std::unique_lock<std::mutex> lk(mtx);
+    connections.erase(connection);
   }
-  void onReceive(Connection* connection, void const* buf, std::size_t len) override { connection->send(buf, len); }
-  void canSend(Socks::Network::Tcp::Connection* connection) { (void)connection; }
+
   void push(void const* buf, std::size_t len)
   {
     std::unique_lock<std::mutex> lk(mtx);
@@ -45,16 +44,52 @@ class PushHandler final : public ServerHandler
   }
 
   private:
+  std::set<Connection*> connections;
+  std::mutex mtx;
+};
+
+
+class PushHandler final : public ServerHandler
+{
+  public:
+  PushHandler(ConnMgr& connMgr) : connMgr(connMgr) {}
+  ~PushHandler() = default;
+
+  void onConnect(Connection* connection) override
+  {
+    spdlog::info("Connection established.");
+    connMgr.addConn(connection);
+  }
+  void onDisconnect(Connection* connection) override
+  {
+    connMgr.delConn(connection);
+    spdlog::info("Connection closed.");
+  }
+  void onReceive(Connection* connection, void const* buf, std::size_t len) override { connection->send(buf, len); }
+  void canSend(Socks::Network::Tcp::Connection* connection) { (void)connection; }
+
+  private:
   PushHandler(PushHandler const&) = delete;
   PushHandler& operator=(PushHandler const&) = delete;
   PushHandler(PushHandler&&) = delete;
   PushHandler& operator=(PushHandler&&) = delete;
 
-  std::set<Connection*> connections;
-  std::mutex mtx;
+  ConnMgr& connMgr;
 };
 
-static void pusherRunner(PushHandler& pushHandler)
+class PushHandlerFactory final : public ServerHandlerFactory
+{
+  public:
+  PushHandlerFactory(ConnMgr& connMgr) : connMgr(connMgr) {}
+  ~PushHandlerFactory() = default;
+
+  ServerHandlerInstance createServerHandler() override { return ServerHandlerInstance(new PushHandler(connMgr)); }
+
+  private:
+  ConnMgr& connMgr;
+};
+
+static void pusherRunner(ConnMgr& connMgr)
 {
   std::stringstream msg;
   for (std::size_t cnt = 0; !Socks::System::quitCondition(); cnt++)
@@ -62,7 +97,7 @@ static void pusherRunner(PushHandler& pushHandler)
     msg.str("");
     msg.clear();
     msg << cnt << std::endl;
-    pushHandler.push(msg.str().c_str(), msg.str().length() + 1);
+    connMgr.push(msg.str().c_str(), msg.str().length() + 1);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
 }
@@ -71,15 +106,16 @@ int main()
 {
   int retVal = EXIT_SUCCESS;
   Posix::Network::Tcp::ContextImpl systemContextImpl;
-  PushHandler pushHandler;
+  ConnMgr connMgr;
+  PushHandlerFactory pushHandlerFactory{connMgr};
   Socks::Network::Tcp::Server server;
-  std::thread pusherThr{pusherRunner, std::ref(pushHandler)};
+  std::thread pusherThr{pusherRunner, std::ref(connMgr)};
 
   Socks::System::initQuitCondition();
 
   try
   {
-    server.serve(systemContextImpl, pushHandler, Socks::Network::Tcp::ServerOptions());
+    server.serve(systemContextImpl, pushHandlerFactory, Socks::Network::Tcp::ServerOptions());
   }
   catch (std::exception& exc)
   {

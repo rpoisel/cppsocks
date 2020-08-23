@@ -12,9 +12,9 @@ namespace Tcp
 
 void ClientWorker::run()
 {
-  handler.onConnect(&conn);
+  handler->onConnect(&conn);
   loop();
-  handler.onDisconnect(&conn);
+  handler->onDisconnect(&conn);
   socket->close();
   _isActive = false;
 }
@@ -36,11 +36,11 @@ void ClientWorker::loop()
       {
         continue;
       }
-      handler.onReceive(&conn, buf.data(), len);
+      handler->onReceive(&conn, buf.data(), len);
     }
     if (socket->isWriteable())
     {
-      handler.canSend(&conn);
+      handler->canSend(&conn);
     }
   }
 }

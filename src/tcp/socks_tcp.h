@@ -19,7 +19,7 @@ class Server final
   public:
   Server() = default;
   ~Server() = default;
-  void serve(Context& context, ServerHandler& handler, ServerOptions const& options = ServerOptions());
+  void serve(Context& context, ServerHandlerFactory& handlerFactory, ServerOptions const& options = ServerOptions());
 
   private:
   Server(Server&) = delete;

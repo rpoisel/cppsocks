@@ -9,6 +9,8 @@
 
 using Socks::Network::Http::HttpConnection;
 using Socks::Network::Http::HttpHandler;
+using Socks::Network::Http::HttpHandlerFactory;
+using Socks::Network::Http::HttpHandlerInstance;
 using Socks::Network::Http::RequestInfo;
 using Socks::Network::Http::Server;
 using Socks::Network::Http::ServerOptions;
@@ -27,17 +29,26 @@ class SimpleServerHandler final : public HttpHandler
   }
 };
 
+class SimpleServerHandlerFactory final : public HttpHandlerFactory
+{
+  public:
+  SimpleServerHandlerFactory() = default;
+  ~SimpleServerHandlerFactory() = default;
+
+  HttpHandlerInstance createHttpHandler() { return HttpHandlerInstance(new SimpleServerHandler()); }
+};
+
 int main()
 {
   Posix::Network::Tcp::ContextImpl systemContextImpl;
-  SimpleServerHandler httpHandler;
+  SimpleServerHandlerFactory httpHandlerFactory;
   Server server;
 
   Socks::System::initQuitCondition();
 
   try
   {
-    server.serve(systemContextImpl, httpHandler, ServerOptions());
+    server.serve(systemContextImpl, httpHandlerFactory, ServerOptions());
   }
   catch (std::exception& exc)
   {

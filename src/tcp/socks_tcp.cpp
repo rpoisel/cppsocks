@@ -18,10 +18,8 @@ using ClientWorkers = std::list<ClientWorker>;
 
 static void cleanup(ClientWorkers& workers);
 
-void Server::serve(Context& context, ServerHandler& handler, ServerOptions const& options)
+void Server::serve(Context& context, ServerHandlerFactory& handlerFactory, ServerOptions const& options)
 {
-  (void)handler;
-
   ClientWorkers workers;
 
   auto listenSocket = context.createListenSocket(options.serverPort);
@@ -35,7 +33,7 @@ void Server::serve(Context& context, ServerHandler& handler, ServerOptions const
     cleanup(workers);
     if (workers.size() < options.maxClients)
     {
-      workers.emplace_back(std::move(clientSocket), handler, this);
+      workers.emplace_back(std::move(clientSocket), std::move(handlerFactory.createServerHandler()), this);
       continue;
     }
     constexpr auto const bye = "No more connections allowed.\n";

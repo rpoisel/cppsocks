@@ -5,6 +5,7 @@
 #include <socks_tcp_fwd.h>
 
 #include <cstddef>
+#include <memory>
 
 namespace Socks
 {
@@ -46,6 +47,17 @@ class ServerHandler
   virtual void onDisconnect(Connection* connection) = 0;
   virtual void onReceive(Connection* connection, void const* buf, std::size_t len) = 0;
   virtual void canSend(Connection* connection) = 0;
+};
+
+using ServerHandlerInstance = std::unique_ptr<ServerHandler>;
+
+class ServerHandlerFactory
+{
+  public:
+  ServerHandlerFactory() = default;
+  virtual ~ServerHandlerFactory() = default;
+
+  virtual ServerHandlerInstance createServerHandler() = 0;
 };
 
 } // namespace Tcp

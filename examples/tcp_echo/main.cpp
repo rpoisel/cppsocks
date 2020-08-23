@@ -10,6 +10,8 @@
 
 using Socks::Network::Tcp::Connection;
 using Socks::Network::Tcp::ServerHandler;
+using Socks::Network::Tcp::ServerHandlerFactory;
+using Socks::Network::Tcp::ServerHandlerInstance;
 
 class EchoHandler final : public ServerHandler
 {
@@ -42,17 +44,26 @@ class EchoHandler final : public ServerHandler
   EchoHandler& operator=(EchoHandler&&) = delete;
 };
 
+class EchoHandlerFactory final : public ServerHandlerFactory
+{
+  public:
+  EchoHandlerFactory() = default;
+  ~EchoHandlerFactory() = default;
+
+  ServerHandlerInstance createServerHandler() override { return ServerHandlerInstance(new EchoHandler()); }
+};
+
 int main()
 {
   Posix::Network::Tcp::ContextImpl systemContextImpl;
-  EchoHandler echoHandler;
+  EchoHandlerFactory echoHandlerFactory;
   Socks::Network::Tcp::Server server;
 
   Socks::System::initQuitCondition();
 
   try
   {
-    server.serve(systemContextImpl, echoHandler, Socks::Network::Tcp::ServerOptions());
+    server.serve(systemContextImpl, echoHandlerFactory, Socks::Network::Tcp::ServerOptions());
   }
   catch (std::exception& exc)
   {

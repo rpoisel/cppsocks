@@ -25,26 +25,26 @@ class Server final
   public:
   Server() = default;
   virtual ~Server() = default;
-  void serve(Socks::Network::Tcp::Context& context, HttpHandler& httpHandler, WSHandler& wsHandler,
+  void serve(Socks::Network::Tcp::Context& context, HttpHandlerFactory& httpHandlerFactory, WSHandler& wsHandler,
              ServerOptions const& options = ServerOptions());
   inline void serve(Socks::Network::Tcp::Context& context, WSHandler& wsHandler, std::string const& basePath,
                     ServerOptions const& options = ServerOptions())
   {
-    HttpFileHandler fileHandler(basePath);
-    serve(context, fileHandler, wsHandler, options);
+    HttpFileHandlerFactory fileHandlerFactory(basePath);
+    serve(context, fileHandlerFactory, wsHandler, options);
   }
-  inline void serve(Socks::Network::Tcp::Context& context, HttpHandler& httpHandler,
+  inline void serve(Socks::Network::Tcp::Context& context, HttpHandlerFactory& httpHandlerFactory,
                     ServerOptions const& options = ServerOptions())
   {
     WSHandlerNull wsHandler;
-    serve(context, httpHandler, wsHandler, options);
+    serve(context, httpHandlerFactory, wsHandler, options);
   }
   inline void serve(Socks::Network::Tcp::Context& context, std::string const& basePath,
                     ServerOptions const& options = ServerOptions())
   {
-    HttpFileHandler fileHandler(basePath);
+    HttpFileHandlerFactory fileHandlerFactory(basePath);
     WSHandlerNull wsHandler;
-    serve(context, fileHandler, wsHandler, options);
+    serve(context, fileHandlerFactory, wsHandler, options);
   }
 
   private:

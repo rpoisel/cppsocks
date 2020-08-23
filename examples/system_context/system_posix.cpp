@@ -90,8 +90,7 @@ Socks::Network::Tcp::ListenSocketInstance ContextImpl::createListenSocket(int po
 
 ssize_t SocketImpl::read(std::array<std::uint8_t, Socks::Network::Tcp::MAX_SIZE>& buf)
 {
-  ssize_t numRecv;
-  numRecv = ::recv(fd, buf.data(), buf.size(), 0);
+  auto numRecv = ::recv(fd, buf.data(), buf.size(), 0);
   if (numRecv == -1)
   {
     if (errno == EINTR || errno == EWOULDBLOCK)
@@ -104,7 +103,20 @@ ssize_t SocketImpl::read(std::array<std::uint8_t, Socks::Network::Tcp::MAX_SIZE>
   return numRecv;
 }
 
-ssize_t SocketImpl::write(void const* buf, std::size_t buflen) { return ::send(fd, buf, buflen, 0); }
+ssize_t SocketImpl::write(void const* buf, std::size_t buflen)
+{
+  auto numSent = ::send(fd, buf, buflen, 0);
+  if (numSent == -1)
+  {
+    if (errno == EINTR || errno == EWOULDBLOCK)
+    {
+      return Socks::Network::Tcp::Socket::NUM_CONTINUE;
+    }
+    throw std::runtime_error(strerror(errno));
+  }
+  return numSent;
+}
+
 bool internalPoll(int fd, short int flags, int timeout)
 {
   struct pollfd pollFd = {.fd = fd, .events = flags, .revents = 0};

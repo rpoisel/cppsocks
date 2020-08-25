@@ -33,11 +33,11 @@ void Server::serve(Context& context, ServerHandlerFactory& handlerFactory, Serve
     cleanup(workers);
     if (workers.size() < options.maxClients)
     {
-      workers.emplace_back(std::move(clientSocket), std::move(handlerFactory.createServerHandler()), this);
+      workers.emplace_back(clientSocket, handlerFactory.createServerHandler(clientSocket, this));
       continue;
     }
     constexpr auto const bye = "No more connections allowed.\n";
-    clientSocket->write(bye, std::strlen(bye));
+    clientSocket->write(reinterpret_cast<Socks::Byte const*>(bye), std::strlen(bye));
   }
   std::for_each(workers.begin(), workers.end(), [](ClientWorker& worker) { worker.finish(); });
 }

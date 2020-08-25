@@ -1,9 +1,12 @@
+#include <stdexcept>
 #include <system_impl.h>
 
 #include <fcntl.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <poll.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include <csignal>
@@ -20,6 +23,17 @@ namespace Network
 namespace Tcp
 {
 static constexpr int const RETVAL_ERROR = -1;
+
+static void setTcpNoDelay(int fd)
+{
+  int val = 1;
+
+  auto rc = ::setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &val, (socklen_t)sizeof(val));
+  if (rc == RETVAL_ERROR)
+  {
+    throw std::runtime_error(std::string("Could not set socket options: ") + strerror(errno));
+  }
+}
 
 static void setSocketFlags(int fd, std::function<int(int)> manipulate)
 {
@@ -103,9 +117,13 @@ ssize_t SocketImpl::read(std::array<std::uint8_t, Socks::Network::Tcp::MAX_SIZE>
   return numRecv;
 }
 
-ssize_t SocketImpl::write(void const* buf, std::size_t buflen)
+ssize_t SocketImpl::write(Byte const* buf, std::size_t buflen)
 {
+#ifdef __linux__
+  auto numSent = ::send(fd, buf, buflen, MSG_NOSIGNAL);
+#else
   auto numSent = ::send(fd, buf, buflen, 0);
+#endif
   if (numSent == -1)
   {
     if (errno == EINTR || errno == EWOULDBLOCK)
@@ -131,6 +149,8 @@ bool internalPoll(int fd, short int flags, int timeout)
 
   return r != 0 && (pollFd.revents & flags);
 }
+
+SocketImpl::SocketImpl(int fd) : fd(fd) { setTcpNoDelay(fd); }
 bool SocketImpl::isReadable() const { return internalPoll(fd, POLLIN, 10 /* ms */); }
 bool SocketImpl::isWriteable() const { return internalPoll(fd, POLLOUT, 0); }
 void SocketImpl::close() { ::close(fd); }

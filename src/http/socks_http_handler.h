@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <string>
 
@@ -22,25 +23,25 @@ enum RequestType : std::uint8_t
   GET_WS,
 };
 
+using HeadersMap = std::map<std::string const, std::string const>;
+
 class RequestInfo
 {
   public:
-  explicit RequestInfo(char const* request, std::size_t len);
-  virtual ~RequestInfo() {}
+  RequestInfo() : _requestType{UNDEFINED}, _path{}, _headers{} {}
+  virtual ~RequestInfo() = default;
 
+  void parse(char const* request, std::size_t len);
   RequestType requestType() const { return _requestType; }
   char const* path() const { return _path; }
+  HeadersMap const& headers() const { return _headers; }
 
   private:
   constexpr static std::size_t const MAX_PATH_LEN = 1024;
 
-  RequestInfo(RequestInfo&) = delete;
-  RequestInfo(RequestInfo&& other) = delete;
-  RequestInfo& operator=(RequestInfo&) = delete;
-  RequestInfo& operator=(RequestInfo&&) = delete;
-
   RequestType _requestType;
   char _path[MAX_PATH_LEN];
+  HeadersMap _headers;
 };
 
 class HttpConnection
@@ -49,7 +50,6 @@ class HttpConnection
   using ResponseCode = std::uint16_t;
 
   explicit HttpConnection(Socks::Network::Tcp::Connection* tcpConnection);
-  virtual ~HttpConnection() {}
 
   void http_200(std::streampos contentLength);
   inline void http_403() { http_response_code("403 Forbidden"); }
@@ -59,11 +59,6 @@ class HttpConnection
   void write(char const* buf, std::size_t len);
 
   private:
-  HttpConnection(HttpConnection&) = delete;
-  HttpConnection(HttpConnection&& other) = delete;
-  HttpConnection& operator=(HttpConnection&) = delete;
-  HttpConnection& operator=(HttpConnection&&) = delete;
-
   void http_response_code(char const* responseCode);
   void end_headers();
 
@@ -73,17 +68,15 @@ class HttpConnection
 class HttpHandler
 {
   public:
-  HttpHandler() = default;
-  virtual ~HttpHandler() {}
-  virtual void do_GET(HttpConnection* connection, RequestInfo const* requestInfo) = 0;
+  virtual ~HttpHandler() = default;
+  virtual void do_GET(HttpConnection* connection, RequestInfo const& requestInfo) = 0;
 };
 
-using HttpHandlerInstance = std::unique_ptr<HttpHandler>;
+using HttpHandlerInstance = std::shared_ptr<HttpHandler>;
 
 class HttpHandlerFactory
 {
   public:
-  HttpHandlerFactory() = default;
   virtual ~HttpHandlerFactory() = default;
 
   virtual HttpHandlerInstance createHttpHandler() = 0;
@@ -93,8 +86,7 @@ class HttpFileHandler final : public HttpHandler
 {
   public:
   explicit HttpFileHandler(std::string const& basePath) : basePath(basePath) {}
-  ~HttpFileHandler() = default;
-  void do_GET(HttpConnection* connection, RequestInfo const* requestInfo);
+  void do_GET(HttpConnection* connection, RequestInfo const& requestInfo) override;
 
   private:
   std::string const basePath;
@@ -103,36 +95,28 @@ class HttpFileHandler final : public HttpHandler
 class HttpFileHandlerFactory final : public HttpHandlerFactory
 {
   public:
-  HttpFileHandlerFactory(std::string const& basePath) : basePath(basePath) {}
-  ~HttpFileHandlerFactory() = default;
+  explicit HttpFileHandlerFactory(std::string const& basePath) : basePath(basePath) {}
 
-  HttpHandlerInstance createHttpHandler() { return HttpHandlerInstance(new HttpFileHandler(basePath)); }
+  HttpHandlerInstance createHttpHandler() override { return HttpHandlerInstance(new HttpFileHandler(basePath)); }
 
   private:
   std::string const& basePath;
 };
 
-class WSHandler
+class HttpHandlerNull final : public HttpHandler
 {
-  public:
-  WSHandler() = default;
-  virtual ~WSHandler() {}
-  virtual void onConnect() = 0;
-  virtual void onData() = 0;
-  virtual void onDisconnect() = 0;
+  void do_GET(HttpConnection* connection, RequestInfo const& requestInfo) override
+  {
+    (void)connection;
+    (void)requestInfo;
+  }
 };
 
-class WSHandlerNull final : public WSHandler
+class HttpHandlerNullFactory final : public HttpHandlerFactory
 {
   public:
-  WSHandlerNull() = default;
-  ~WSHandlerNull() = default;
-
-  void onConnect() {}
-  void onData() {}
-  void onDisconnect() {}
+  HttpHandlerInstance createHttpHandler() override { return HttpHandlerInstance(new HttpHandlerNull()); }
 };
-
 } // namespace Http
 } // namespace Network
 } // namespace Socks

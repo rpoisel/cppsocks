@@ -17,17 +17,17 @@ namespace Tcp
 class ClientWorker
 {
   public:
-  ClientWorker(SocketInstance socket, ServerHandlerInstance handler, Server* server)
-      : socket(std::move(socket)), handler(std::move(handler)), conn{this->socket.get(), server}, _isActive(false), thr{}
+  ClientWorker(SocketInstance socket, ServerHandlerInstance handler)
+      : socket{socket}, handler(std::move(handler)), _isActive(false), thr{}
   {
     start();
   }
   ClientWorker(ClientWorker&& other)
-      : socket{std::move(other.socket)}, handler(std::move(other.handler)), conn{std::move(other.conn)},
-        _isActive{other._isActive ? true : false}, thr{std::move(other.thr)}
+      : socket{std::move(other.socket)},
+        handler(std::move(other.handler)), _isActive{other._isActive ? true : false}, thr{std::move(other.thr)}
   {
   }
-  virtual ~ClientWorker() {}
+  virtual ~ClientWorker() = default;
 
   void run();
   void finish() { thr.join(); }
@@ -47,7 +47,6 @@ class ClientWorker
 
   SocketInstance socket;
   ServerHandlerInstance handler;
-  Connection conn;
   std::atomic_bool _isActive;
   std::thread thr;
 };

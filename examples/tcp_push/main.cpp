@@ -14,10 +14,13 @@
 #include <sstream>
 #include <thread>
 
+using Socks::Byte;
 using Socks::Network::Tcp::Connection;
+using Socks::Network::Tcp::Server;
 using Socks::Network::Tcp::ServerHandler;
 using Socks::Network::Tcp::ServerHandlerFactory;
 using Socks::Network::Tcp::ServerHandlerInstance;
+using Socks::Network::Tcp::SocketInstance;
 
 class ConnMgr final
 {
@@ -37,7 +40,7 @@ class ConnMgr final
     connections.erase(connection);
   }
 
-  void push(void const* buf, std::size_t len)
+  void push(char const* buf, std::size_t len)
   {
     std::unique_lock<std::mutex> lk(mtx);
     std::for_each(connections.begin(), connections.end(), [&](Connection* connection) { connection->send(buf, len); });
@@ -52,21 +55,20 @@ class ConnMgr final
 class PushHandler final : public ServerHandler
 {
   public:
-  PushHandler(ConnMgr& connMgr) : connMgr(connMgr) {}
+  PushHandler(SocketInstance socket, Server* server, ConnMgr& connMgr) : ServerHandler{socket, server}, connMgr(connMgr) {}
   ~PushHandler() = default;
 
-  void onConnect(Connection* connection) override
+  void onConnect() override
   {
     spdlog::info("Connection established.");
-    connMgr.addConn(connection);
+    connMgr.addConn(connection());
   }
-  void onDisconnect(Connection* connection) override
+  void onDisconnect() override
   {
-    connMgr.delConn(connection);
+    connMgr.delConn(connection());
     spdlog::info("Connection closed.");
   }
-  void onReceive(Connection* connection, void const* buf, std::size_t len) override { connection->send(buf, len); }
-  void canSend(Socks::Network::Tcp::Connection* connection) { (void)connection; }
+  void onReceive(Byte const* buf, std::size_t len) override { connection()->send(buf, len); }
 
   private:
   PushHandler(PushHandler const&) = delete;
@@ -81,9 +83,11 @@ class PushHandlerFactory final : public ServerHandlerFactory
 {
   public:
   PushHandlerFactory(ConnMgr& connMgr) : connMgr(connMgr) {}
-  ~PushHandlerFactory() = default;
 
-  ServerHandlerInstance createServerHandler() override { return ServerHandlerInstance(new PushHandler(connMgr)); }
+  ServerHandlerInstance createServerHandler(SocketInstance socket, Server* server) override
+  {
+    return ServerHandlerInstance(new PushHandler(socket, server, connMgr));
+  }
 
   private:
   ConnMgr& connMgr;

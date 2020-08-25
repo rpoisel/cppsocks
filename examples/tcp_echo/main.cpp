@@ -1,3 +1,4 @@
+#include "socks_tcp_types.h"
 #include <socks_tcp.h>
 #include <system_impl.h>
 
@@ -8,7 +9,9 @@
 #include <iostream>
 #include <set>
 
+using Socks::Byte;
 using Socks::Network::Tcp::Connection;
+using Socks::Network::Tcp::Server;
 using Socks::Network::Tcp::ServerHandler;
 using Socks::Network::Tcp::ServerHandlerFactory;
 using Socks::Network::Tcp::ServerHandlerInstance;
@@ -16,26 +19,16 @@ using Socks::Network::Tcp::ServerHandlerInstance;
 class EchoHandler final : public ServerHandler
 {
   public:
-  EchoHandler() = default;
-  ~EchoHandler() = default;
+  EchoHandler(Socks::Network::Tcp::SocketInstance socket, Server* server) : ServerHandler(socket, server) {}
 
-  void onConnect(Connection* connection) override
-  {
-    (void)connection;
-    spdlog::info("Connection established.");
-  }
-  void onDisconnect(Connection* connection) override
-  {
-    (void)connection;
-    spdlog::info("Connection closed.");
-  }
-  void onReceive(Connection* connection, void const* buf, std::size_t len) override
+  void onConnect() override { spdlog::info("Connection established."); }
+  void onDisconnect() override { spdlog::info("Connection closed."); }
+  void onReceive(Byte const* buf, std::size_t len) override
   {
     spdlog::info("Got message with length {} bytes.", len);
-    connection->send(buf, len);
+    connection()->send(buf, len);
     spdlog::info("Sent message with length {} bytes.", len);
   }
-  void canSend(Socks::Network::Tcp::Connection* connection) { (void)connection; }
 
   private:
   EchoHandler(EchoHandler const&) = delete;
@@ -47,10 +40,10 @@ class EchoHandler final : public ServerHandler
 class EchoHandlerFactory final : public ServerHandlerFactory
 {
   public:
-  EchoHandlerFactory() = default;
-  ~EchoHandlerFactory() = default;
-
-  ServerHandlerInstance createServerHandler() override { return ServerHandlerInstance(new EchoHandler()); }
+  ServerHandlerInstance createServerHandler(Socks::Network::Tcp::SocketInstance socket, Server* server) override
+  {
+    return ServerHandlerInstance(new EchoHandler(socket, server));
+  }
 };
 
 int main()

@@ -28,13 +28,10 @@ class ContextImpl final : public Socks::Network::Tcp::Context
 class SocketImpl final : public Socks::Network::Tcp::Socket
 {
   public:
-  explicit SocketImpl(int fd) : fd(fd)
-  {
-    // make sure socket is non-blocking
-  }
+  explicit SocketImpl(int fd);
   ~SocketImpl() override {}
-  ssize_t read(std::array<std::uint8_t, Socks::Network::Tcp::MAX_SIZE>& buf) override;
-  ssize_t write(void const* buf, std::size_t buflen) override;
+  ssize_t read(std::array<Socks::Byte, Socks::Network::Tcp::MAX_SIZE>& buf) override;
+  ssize_t write(Socks::Byte const* buf, std::size_t buflen) override;
   virtual bool isReadable() const override;
   virtual bool isWriteable() const override;
   void close() override;

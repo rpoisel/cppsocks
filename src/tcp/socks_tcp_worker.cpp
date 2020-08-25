@@ -1,6 +1,10 @@
+#include <exception>
 #include <socks_system_context.h>
 #include <socks_tcp_types.h>
 #include <socks_tcp_worker.h>
+
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
 
 namespace Socks
 {
@@ -12,10 +16,17 @@ namespace Tcp
 
 void ClientWorker::run()
 {
-  handler->onConnect(&conn);
-  loop();
-  handler->onDisconnect(&conn);
-  socket->close();
+  try
+  {
+    handler->onConnect();
+    loop();
+    handler->onDisconnect();
+    socket->close();
+  }
+  catch (std::exception& exc)
+  {
+    spdlog::error("{}", exc.what());
+  }
   _isActive = false;
 }
 
@@ -23,7 +34,7 @@ void ClientWorker::loop()
 {
   MsgBuf buf;
 
-  while (!System::quitCondition() && !conn.isClosed())
+  while (!System::quitCondition() && !handler->connection()->isClosed())
   {
     if (socket->isReadable())
     {
@@ -36,11 +47,7 @@ void ClientWorker::loop()
       {
         continue;
       }
-      handler->onReceive(&conn, buf.data(), len);
-    }
-    if (socket->isWriteable())
-    {
-      handler->canSend(&conn);
+      handler->onReceive(buf.data(), len);
     }
   }
 }

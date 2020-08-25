@@ -1,12 +1,12 @@
 #include <socks_http.h>
+#include <socks_http_states.h>
 
 #include <socks_tcp.h>
+#include <socks_tcp_handler.h>
 #include <socks_tcp_options.h>
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
-
-#include <functional>
 
 namespace Socks
 {
@@ -15,97 +15,75 @@ namespace Network
 namespace Http
 {
 
-class TcpServerHandler final : public Socks::Network::Tcp::ServerHandler
+using Socks::Network::Tcp::Connection;
+using Socks::Network::Tcp::Context;
+using Socks::Network::Tcp::ServerHandler;
+using Socks::Network::Tcp::ServerHandlerFactory;
+using Socks::Network::Tcp::ServerHandlerInstance;
+
+class TcpServerHandler final : public ServerHandler, HttpStateContext
 {
   public:
-  explicit TcpServerHandler(HttpHandlerInstance httpHandler)
-      : httpHandler{std::move(httpHandler)}, recvBuf(), numRecv(0), curState{&TcpServerHandler::initHttp}
+  explicit TcpServerHandler(Socks::Network::Tcp::SocketInstance socket, Socks::Network::Tcp::Server* server,
+                            HttpHandlerFactory& httpHandlerFactory, WsHandlerFactory& wsHandlerFactory)
+      : ServerHandler{socket, server}, httpHandlerFactory_(httpHandlerFactory),
+        wsHandlerFactory_(wsHandlerFactory), requestInfo_{}, curState{new HttpInitState(this, requestInfo_)}, nextState{}
   {
   }
-  ~TcpServerHandler() = default;
 
-  void onConnect(Socks::Network::Tcp::Connection* connection) { (void)connection; }
-  void onDisconnect(Socks::Network::Tcp::Connection* connection) { (void)connection; }
-  void onReceive(Socks::Network::Tcp::Connection* connection, void const* buf, std::size_t len)
+  void setNextState(HttpStateInstance nextState) override
   {
-    curState(*this, connection, buf, len);
+    nextState->onEnter();
+    this->nextState = std::move(nextState);
   }
-  void canSend(Socks::Network::Tcp::Connection* connection) { (void)connection; }
+  RequestInfo const& requestInfo() override { return requestInfo_; }
+  HttpHandlerFactory& httpHandlerFactory() override { return httpHandlerFactory_; }
+  WsHandlerFactory& wsHandlerFactory() override { return wsHandlerFactory_; }
+  Socks::Network::Tcp::Connection* tcpConnection() override { return connection(); }
+
+  void onConnect() override {}
+  void onDisconnect() override { curState->onDisconnect(); }
+  void onReceive(Byte const* buf, std::size_t len) override
+  {
+    curState->onReceive(buf, len);
+    if (nextState.get())
+    {
+      curState = std::move(nextState);
+      nextState = HttpStateInstance();
+    }
+  }
 
   private:
-  void initHttp(Socks::Network::Tcp::Connection* connection, void const* buf, std::size_t len);
-  void handleWs(Socks::Network::Tcp::Connection* connection, void const* buf, std::size_t len);
-  Socks::Network::Http::HttpHandlerInstance httpHandler;
-  std::array<char, 4096> recvBuf;
-  std::size_t numRecv;
-  std::function<void(TcpServerHandler& handler, Socks::Network::Tcp::Connection* connection, void const* buf,
-                     std::size_t len)>
-      curState;
+  HttpHandlerFactory& httpHandlerFactory_;
+  WsHandlerFactory& wsHandlerFactory_;
+  RequestInfo requestInfo_;
+  HttpStateInstance curState;
+  HttpStateInstance nextState;
 };
 
-class TcpServerHandlerFactory final : public Socks::Network::Tcp::ServerHandlerFactory
+class TcpServerHandlerFactory final : public ServerHandlerFactory
 {
   public:
-  TcpServerHandlerFactory(HttpHandlerFactory& httpHandlerFactory) : httpHandlerFactory(httpHandlerFactory) {}
-  ~TcpServerHandlerFactory() = default;
-
-  Socks::Network::Tcp::ServerHandlerInstance createServerHandler()
+  TcpServerHandlerFactory(HttpHandlerFactory& httpHandlerFactory, WsHandlerFactory& wsHandlerFactory)
+      : httpHandlerFactory(httpHandlerFactory), wsHandlerFactory(wsHandlerFactory)
   {
-    auto tcpServerHandler = new TcpServerHandler(std::move(httpHandlerFactory.createHttpHandler()));
-    // TODO pass wsHandler
-    return Socks::Network::Tcp::ServerHandlerInstance(tcpServerHandler);
+  }
+
+  ServerHandlerInstance createServerHandler(Socks::Network::Tcp::SocketInstance socket, Socks::Network::Tcp::Server* server)
+  {
+    auto tcpServerHandler = new TcpServerHandler(socket, server, httpHandlerFactory, wsHandlerFactory);
+    return ServerHandlerInstance(tcpServerHandler);
   }
 
   private:
   HttpHandlerFactory& httpHandlerFactory;
+  WsHandlerFactory& wsHandlerFactory;
 };
 
-void TcpServerHandler::initHttp(Socks::Network::Tcp::Connection* connection, void const* buf, std::size_t len)
-{
-  constexpr std::array<char, 4> TERMINATOR = {'\r', '\n', '\r', '\n'};
-  try
-  {
-    // TODO check bounds and available buffer sizes
-    std::memcpy(recvBuf.data() + numRecv, buf, len);
-    numRecv += len;
-    if (numRecv < recvBuf.size() &&
-        std::memcmp(recvBuf.data() + numRecv - TERMINATOR.size(), TERMINATOR.data(), TERMINATOR.size()))
-    {
-      return;
-    }
-    RequestInfo requestInfo(recvBuf.data(), numRecv);
-    Socks::Network::Http::HttpConnection httpConnection(connection);
-    if (requestInfo.requestType() == RequestType::GET)
-    {
-      httpHandler->do_GET(&httpConnection, &requestInfo);
-    }
-    else if (requestInfo.requestType() == RequestType::GET_WS)
-    {
-      curState = &TcpServerHandler::handleWs;
-      return;
-    }
-  }
-  catch (const std::exception& exc)
-  {
-    spdlog::error("{}", exc.what());
-  }
-
-  connection->close();
-}
-
-void TcpServerHandler::handleWs(Socks::Network::Tcp::Connection* connection, void const* buf, std::size_t len)
-{
-  (void)connection;
-  (void)buf;
-  (void)len;
-}
-
-void Server::serve(Socks::Network::Tcp::Context& context, HttpHandlerFactory& httpHandlerFactory, WSHandler& wsHandler,
+void Server::serve(Context& context, HttpHandlerFactory& httpHandlerFactory, WsHandlerFactory& wsHandlerFactory,
                    ServerOptions const& options)
 {
-  (void)wsHandler;
-
-  TcpServerHandlerFactory tcpHandlerFactory(httpHandlerFactory);
+  TcpServerHandlerFactory tcpHandlerFactory(httpHandlerFactory, wsHandlerFactory);
   Socks::Network::Tcp::ServerOptions tcpOptions(options.port, options.maxClients);
   Socks::Network::Tcp::Server server;
 

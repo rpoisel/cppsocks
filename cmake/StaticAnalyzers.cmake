@@ -6,7 +6,7 @@ if(ENABLE_CPPCHECK)
   find_program(CPPCHECK cppcheck)
   if(CPPCHECK)
     set(CMAKE_CMD ${CPPCHECK} --suppress=missingInclude --suppress=syntaxError --suppress=unmatchedSuppression --enable=all
-                           --inline-suppr --inconclusive -i ${CMAKE_SOURCE_DIR}/external)
+                           --inline-suppr --inconclusive -i ${CMAKE_SOURCE_DIR}/src/external)
     add_custom_target(cppcheck ALL ${CMAKE_CMD} ${CMAKE_SOURCE_DIR}/src)
   else()
     message(SEND_ERROR "cppcheck requested but executable not found")

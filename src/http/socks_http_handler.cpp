@@ -18,7 +18,50 @@ namespace Http
 
 constexpr char const* const NEWLINE = "\r\n";
 
-RequestInfo::RequestInfo(char const* request, std::size_t len)
+static void parseHeaders(char const* request, std::size_t len, HeadersMap& headers_)
+{
+  (void)len; // TODO use for bounds checking
+
+  std::stringstream requestStream;
+  std::string line;
+
+  requestStream.str(request);
+  std::getline(requestStream, line); // omit first request line
+  while (std::getline(requestStream, line))
+  {
+    std::string const delimiter = ": ";
+    std::size_t pos = line.find(delimiter);
+    if (pos == std::string::npos)
+    {
+      break;
+    }
+    std::string key = line.substr(0, pos);
+    std::string value = line.erase(0, pos + delimiter.length());
+
+    headers_.emplace(std::move(key), std::move(value));
+  }
+}
+
+bool hasHeaderField(HeadersMap const& headers, std::string const& key, std::string const& value)
+{
+  auto itr = headers.find(key);
+  if (itr == headers.end())
+  {
+    return false;
+  }
+  return itr->second.find(value) != std::string::npos;
+}
+
+bool hasHeaderField(HeadersMap const& headers, std::string const& key) { return headers.find(key) != headers.end(); }
+
+bool isWsRequest(HeadersMap const& headers)
+{
+  return hasHeaderField(headers, "Upgrade", "websocket") &&
+         (hasHeaderField(headers, "Connection", "Upgrade") || hasHeaderField(headers, "Connection", "upgrade")) &&
+         hasHeaderField(headers, "Sec-WebSocket-Key");
+}
+
+void RequestInfo::parse(char const* request, std::size_t len)
 {
   if (len < 3)
   {
@@ -26,7 +69,11 @@ RequestInfo::RequestInfo(char const* request, std::size_t len)
   }
 
   constexpr char const* const GET = "GET";
-  _requestType = (!std::strncmp(request, GET, std::strlen(GET))) ? RequestType::GET : RequestType::UNDEFINED;
+  if (std::strncmp(request, GET, std::strlen(GET)))
+  {
+    throw std::invalid_argument("Unsupported request type.");
+  }
+  _requestType = RequestType::GET;
   auto path = std::strchr(request, ' ');
   if (!path)
   {
@@ -44,6 +91,13 @@ RequestInfo::RequestInfo(char const* request, std::size_t len)
     _path[curPos - path] = *curPos;
   }
   _path[curPos - path] = '\0';
+
+  parseHeaders(request, len, _headers);
+
+  if (isWsRequest(_headers))
+  {
+    _requestType = RequestType::GET_WS;
+  }
 }
 
 HttpConnection::HttpConnection(Socks::Network::Tcp::Connection* tcpConnection) : tcpConnection{tcpConnection} {}
@@ -74,9 +128,9 @@ static std::streampos get_file_size(std::string const& path)
   return in_fs.tellg();
 }
 
-void HttpFileHandler::do_GET(HttpConnection* connection, RequestInfo const* requestInfo)
+void HttpFileHandler::do_GET(HttpConnection* connection, RequestInfo const& requestInfo)
 {
-  char const* path = requestInfo->path();
+  char const* path = requestInfo.path();
 
   if (path[0] == '\0' || (path[0] == '/' && path[1] == '\0'))
   {

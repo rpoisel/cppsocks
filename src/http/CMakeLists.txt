@@ -1,6 +1,9 @@
 add_library(socks_http STATIC
   socks_http.cpp
   socks_http_handler.cpp
+  socks_http_states.cpp
+  socks_http_states_ws.cpp
+  socks_ws_handler.cpp
 )
 
 target_include_directories(socks_http PUBLIC
@@ -9,5 +12,6 @@ target_include_directories(socks_http PUBLIC
 
 target_link_libraries(socks_http PRIVATE
   socks_tcp
-  wslay
+  digestpp
+  cppcodec
 )

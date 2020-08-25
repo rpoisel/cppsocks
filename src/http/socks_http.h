@@ -3,6 +3,7 @@
 
 #include <socks_http_handler.h>
 #include <socks_tcp_handler.h>
+#include <socks_ws_handler.h>
 
 #include <cstddef>
 
@@ -23,35 +24,35 @@ struct ServerOptions
 class Server final
 {
   public:
-  Server() = default;
-  virtual ~Server() = default;
-  void serve(Socks::Network::Tcp::Context& context, HttpHandlerFactory& httpHandlerFactory, WSHandler& wsHandler,
-             ServerOptions const& options = ServerOptions());
-  inline void serve(Socks::Network::Tcp::Context& context, WSHandler& wsHandler, std::string const& basePath,
-                    ServerOptions const& options = ServerOptions())
+  static void serve(Socks::Network::Tcp::Context& context, HttpHandlerFactory& httpHandlerFactory,
+                    WsHandlerFactory& wsHandlerFactory, ServerOptions const& options = ServerOptions());
+  static inline void serve(Socks::Network::Tcp::Context& context, WsHandlerFactory& wsHandler, std::string const& basePath,
+                           ServerOptions const& options = ServerOptions())
   {
     HttpFileHandlerFactory fileHandlerFactory(basePath);
     serve(context, fileHandlerFactory, wsHandler, options);
   }
-  inline void serve(Socks::Network::Tcp::Context& context, HttpHandlerFactory& httpHandlerFactory,
-                    ServerOptions const& options = ServerOptions())
+  static inline void serve(Socks::Network::Tcp::Context& context, HttpHandlerFactory& httpHandlerFactory,
+                           ServerOptions const& options = ServerOptions())
   {
-    WSHandlerNull wsHandler;
-    serve(context, httpHandlerFactory, wsHandler, options);
+    WsHandlerNullFactory wsHandlerFactory;
+    serve(context, httpHandlerFactory, wsHandlerFactory, options);
   }
-  inline void serve(Socks::Network::Tcp::Context& context, std::string const& basePath,
-                    ServerOptions const& options = ServerOptions())
+  static inline void serve(Socks::Network::Tcp::Context& context, std::string const& basePath,
+                           ServerOptions const& options = ServerOptions())
   {
     HttpFileHandlerFactory fileHandlerFactory(basePath);
-    WSHandlerNull wsHandler;
-    serve(context, fileHandlerFactory, wsHandler, options);
+    WsHandlerNullFactory wsHandlerFactory;
+    serve(context, fileHandlerFactory, wsHandlerFactory, options);
   }
 
   private:
-  Server(Server&) = delete;
-  Server& operator=(Server&) = delete;
-  Server(Server&&) = delete;
-  Server& operator=(Server&&) = delete;
+  Server() = delete;
+  ~Server() = delete;
+  Server(Server& other) = delete;
+  Server(Server&& other) = delete;
+  Server& operator=(Server const& server) = delete;
+  Server& operator=(Server&& server) = delete;
 };
 } // namespace Http
 } // namespace Network

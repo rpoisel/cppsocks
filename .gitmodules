@@ -1,9 +1,12 @@
-[submodule "external/wslay"]
-	path = src/external/wslay
-	url = https://github.com/tatsuhiro-t/wslay.git
 [submodule "external/spdlog"]
 	path = src/external/spdlog
 	url = https://github.com/gabime/spdlog.git
 [submodule "test/external/Catch2"]
 	path = test/external/Catch2
 	url = https://github.com/catchorg/Catch2.git
+[submodule "src/external/digestpp"]
+	path = src/external/digestpp
+	url = https://github.com/kerukuro/digestpp
+[submodule "src/external/cppcodec"]
+	path = src/external/cppcodec
+	url = https://github.com/tplgy/cppcodec

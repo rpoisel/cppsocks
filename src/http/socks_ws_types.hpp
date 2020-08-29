@@ -74,7 +74,7 @@ class WebSocketFrame
 
   private:
   WebSocketFrame(bool fin, std::uint8_t opcode, Byte const* payload, std::size_t payloadLength)
-      : data_{}, dataLen{payloadLength + 2}
+      : data_{0}, dataLen{payloadLength + 2}
   {
     if (fin)
     {

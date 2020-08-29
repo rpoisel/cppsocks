@@ -62,7 +62,7 @@ class HttpInitState final : public HttpState
 {
   public:
   explicit HttpInitState(HttpStateContext* fsm, RequestInfo& requestInfo)
-      : HttpState{fsm}, requestInfo(requestInfo), recvBuf{}, numRecv(0)
+      : HttpState{fsm}, requestInfo(requestInfo), recvBuf{0}, numRecv(0)
   {
   }
   virtual void onEnter() override { throw std::runtime_error("HttpInitState::onEnter() must not be called."); }

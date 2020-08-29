@@ -1,7 +1,7 @@
 #ifndef SOCKS_WS_H
 #define SOCKS_WS_H
 
-#include <socks_ws_handler.h>
+#include <socks_ws_handler.hpp>
 
 #include <cstdint>
 #include <cstring>

@@ -1,9 +1,9 @@
-#ifndef SOCKS_HTTP_H
-#define SOCKS_HTTP_H
+#ifndef SOCKS_HTTP_HPP
+#define SOCKS_HTTP_HPP
 
-#include <socks_http_handler.h>
-#include <socks_tcp_handler.h>
-#include <socks_ws_handler.h>
+#include <socks_http_handler.hpp>
+#include <socks_tcp_handler.hpp>
+#include <socks_ws_handler.hpp>
 
 #include <cstddef>
 
@@ -58,4 +58,4 @@ class Server final
 } // namespace Network
 } // namespace Socks
 
-#endif /* SOCKS_HTTP_H */
+#endif /* SOCKS_HTTP_HPP */

@@ -1,5 +1,5 @@
-#ifndef SOCKS_TCP_OPTIONS_H
-#define SOCKS_TCP_OPTIONS_H
+#ifndef SOCKS_TCP_OPTIONS_HPP
+#define SOCKS_TCP_OPTIONS_HPP
 
 #include <cstddef>
 
@@ -20,4 +20,4 @@ struct ServerOptions
 } // namespace Network
 } // namespace Socks
 
-#endif // SOCKS_TCP_OPTIONS_H
+#endif /* SOCKS_TCP_OPTIONS_H */

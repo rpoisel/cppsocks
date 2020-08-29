@@ -1,9 +1,8 @@
-#include <socks_http.h>
-#include <socks_http_states.h>
-
-#include <socks_tcp.h>
-#include <socks_tcp_handler.h>
-#include <socks_tcp_options.h>
+#include <socks_http.hpp>
+#include <socks_http_states.hpp>
+#include <socks_tcp.hpp>
+#include <socks_tcp_handler.hpp>
+#include <socks_tcp_options.hpp>
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>

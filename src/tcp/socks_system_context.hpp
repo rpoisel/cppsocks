@@ -1,7 +1,7 @@
-#ifndef SOCKS_SYSTEM_CONTEXT_H
-#define SOCKS_SYSTEM_CONTEXT_H
+#ifndef SOCKS_SYSTEM_CONTEXT_HPP
+#define SOCKS_SYSTEM_CONTEXT_HPP
 
-#include <socks_tcp_types.h>
+#include <socks_tcp_types.hpp>
 
 #include <unistd.h>
 
@@ -56,4 +56,4 @@ bool quitCondition();
 } // namespace System
 } // namespace Socks
 
-#endif /* SOCKS_SYSTEM_CONTEXT_H */
+#endif /* SOCKS_SYSTEM_CONTEXT_HPP */

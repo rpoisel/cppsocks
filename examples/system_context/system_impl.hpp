@@ -1,7 +1,7 @@
-#ifndef SYSTEM_POSIX_H
-#define SYSTEM_POSIX_H
+#ifndef SYSTEM_POSIX_HPP
+#define SYSTEM_POSIX_HPP
 
-#include <socks_tcp.h>
+#include <socks_tcp.hpp>
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -67,4 +67,4 @@ class ListenSocket final : public Socks::Network::Tcp::ListenSocket
 
 } // namespace Posix
 
-#endif /* SYSTEM_POSIX_H */
+#endif /* SYSTEM_POSIX_HPP */

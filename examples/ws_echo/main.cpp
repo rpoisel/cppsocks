@@ -1,7 +1,7 @@
-#include <socks_http.h>
-#include <socks_http_handler.h>
-#include <socks_ws_handler.h>
-#include <system_impl.h>
+#include <socks_http.hpp>
+#include <socks_http_handler.hpp>
+#include <socks_ws_handler.hpp>
+#include <system_impl.hpp>
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>

@@ -1,7 +1,7 @@
-#ifndef SOCKS_HTTP_HANDLER_H
-#define SOCKS_HTTP_HANDLER_H
+#ifndef SOCKS_HTTP_HANDLER_HPP
+#define SOCKS_HTTP_HANDLER_HPP
 
-#include <socks_tcp_handler.h>
+#include <socks_tcp_handler.hpp>
 
 #include <cstddef>
 #include <cstdint>
@@ -121,4 +121,4 @@ class HttpHandlerNullFactory final : public HttpHandlerFactory
 } // namespace Network
 } // namespace Socks
 
-#endif /* SOCKS_HTTP_HANDLER_H */
+#endif /* SOCKS_HTTP_HANDLER_HPP */

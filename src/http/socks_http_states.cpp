@@ -1,5 +1,5 @@
-#include <socks_http_states.h>
-#include <socks_http_states_ws.h>
+#include <socks_http_states.hpp>
+#include <socks_http_states_ws.hpp>
 
 #include <array>
 #include <exception>

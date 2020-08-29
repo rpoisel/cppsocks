@@ -1,8 +1,8 @@
-#ifndef SOCKS_HTTP_STATES_H
-#define SOCKS_HTTP_STATES_H
+#ifndef SOCKS_HTTP_STATES_HPP
+#define SOCKS_HTTP_STATES_HPP
 
-#include <socks_http_handler.h>
-#include <socks_ws_handler.h>
+#include <socks_http_handler.hpp>
+#include <socks_ws_handler.hpp>
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
@@ -78,4 +78,4 @@ class HttpInitState final : public HttpState
 } // namespace Network
 } // namespace Socks
 
-#endif /* SOCKS_HTTP_STATES_H */
+#endif /* SOCKS_HTTP_STATES_HPP */

@@ -1,10 +1,11 @@
-#include <exception>
-#include <socks_system_context.h>
-#include <socks_tcp_types.h>
-#include <socks_tcp_worker.h>
+#include <socks_system_context.hpp>
+#include <socks_tcp_types.hpp>
+#include <socks_tcp_worker.hpp>
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
+
+#include <exception>
 
 namespace Socks
 {

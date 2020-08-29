@@ -1,5 +1,5 @@
-#ifndef SOCKS_TCP_TYPES_H
-#define SOCKS_TCP_TYPES_H
+#ifndef SOCKS_TCP_TYPES_HPP
+#define SOCKS_TCP_TYPES_HPP
 
 #include <array>
 #include <cstdint>
@@ -18,4 +18,4 @@ using MsgBuf = std::array<Byte, MAX_SIZE>;
 } // namespace Network
 } // namespace Socks
 
-#endif // SOCKS_TCP_TYPES_H
+#endif /* SOCKS_TCP_TYPES_HPP */

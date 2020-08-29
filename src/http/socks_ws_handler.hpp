@@ -1,7 +1,7 @@
-#ifndef SOCKS_WS_HANDLER_H
-#define SOCKS_WS_HANDLER_H
+#ifndef SOCKS_WS_HANDLER_HPP
+#define SOCKS_WS_HANDLER_HPP
 
-#include <socks_tcp_handler.h>
+#include <socks_tcp_handler.hpp>
 
 #include <memory>
 #include <string>
@@ -86,4 +86,4 @@ class WsHandlerNullFactory final : public WsHandlerFactory
 } // namespace Network
 } // namespace Socks
 
-#endif /* SOCKS_WS_HANDLER_H */
+#endif /* SOCKS_WS_HANDLER_HPP */

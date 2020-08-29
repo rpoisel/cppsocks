@@ -1,8 +1,8 @@
-#ifndef SOCKS_TCP_HANDLER_H
-#define SOCKS_TCP_HANDLER_H
+#ifndef SOCKS_TCP_HANDLER_HPP
+#define SOCKS_TCP_HANDLER_HPP
 
-#include <socks_system_context.h>
-#include <socks_tcp_fwd.h>
+#include <socks_system_context.hpp>
+#include <socks_tcp_fwd.hpp>
 
 #include <cstddef>
 #include <memory>
@@ -86,4 +86,4 @@ class ServerHandlerFactory
 
 } // namespace Socks
 
-#endif // SOCKS_TCP_HANDLER_H
+#endif /* SOCKS_TCP_HANDLER_HPP */

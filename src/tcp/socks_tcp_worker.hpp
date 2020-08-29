@@ -1,8 +1,8 @@
-#ifndef SOCKS_TCP_WORKER_H
-#define SOCKS_TCP_WORKER_H
+#ifndef SOCKS_TCP_WORKER_HPP
+#define SOCKS_TCP_WORKER_HPP
 
-#include <socks_system_context.h>
-#include <socks_tcp_handler.h>
+#include <socks_system_context.hpp>
+#include <socks_tcp_handler.hpp>
 
 #include <atomic>
 #include <thread>
@@ -55,4 +55,4 @@ class ClientWorker
 
 } // namespace Socks
 
-#endif /* SOCKS_TCP_WORKER _H */
+#endif /* SOCKS_TCP_WORKER _HPP */

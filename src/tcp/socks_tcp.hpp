@@ -1,10 +1,10 @@
-#ifndef SOCKS_TCP_H
-#define SOCKS_TCP_H
+#ifndef SOCKS_TCP_HPP
+#define SOCKS_TCP_HPP
 
-#include <socks_system_context.h>
-#include <socks_tcp_error.h>
-#include <socks_tcp_handler.h>
-#include <socks_tcp_options.h>
+#include <socks_system_context.hpp>
+#include <socks_tcp_error.hpp>
+#include <socks_tcp_handler.hpp>
+#include <socks_tcp_options.hpp>
 
 namespace Socks
 {
@@ -18,7 +18,6 @@ class Server final
 {
   public:
   Server() = default;
-  ~Server() = default;
   void serve(Context& context, ServerHandlerFactory& handlerFactory, ServerOptions const& options = ServerOptions());
 
   private:
@@ -33,4 +32,4 @@ class Server final
 
 } // namespace Socks
 
-#endif /* SOCKS_TCP_H */
+#endif /* SOCKS_TCP_HPP */

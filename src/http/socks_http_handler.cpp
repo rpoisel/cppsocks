@@ -1,4 +1,4 @@
-#include <socks_http_handler.h>
+#include <socks_http_handler.hpp>
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>

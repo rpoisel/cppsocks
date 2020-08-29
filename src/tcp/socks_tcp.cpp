@@ -1,6 +1,6 @@
-#include <socks_tcp.h>
-#include <socks_tcp_types.h>
-#include <socks_tcp_worker.h>
+#include <socks_tcp.hpp>
+#include <socks_tcp_types.hpp>
+#include <socks_tcp_worker.hpp>
 
 #include <algorithm>
 #include <cstring>

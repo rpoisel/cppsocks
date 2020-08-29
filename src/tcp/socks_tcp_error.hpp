@@ -1,5 +1,5 @@
-#ifndef SOCKS_TCP_ERROR_H
-#define SOCKS_TCP_ERROR_H
+#ifndef SOCKS_TCP_ERROR_HPP
+#define SOCKS_TCP_ERROR_HPP
 
 #include <exception>
 #include <string>
@@ -32,4 +32,4 @@ class ResourceException final : public WSException
 
 } // namespace Socks
 
-#endif // SOCKS_TCP_ERROR_H
+#endif /* SOCKS_TCP_ERROR_HPP */

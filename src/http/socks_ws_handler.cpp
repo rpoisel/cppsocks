@@ -1,5 +1,5 @@
-#include <socks_ws_handler.h>
-#include <socks_ws_types.h>
+#include <socks_ws_handler.hpp>
+#include <socks_ws_types.hpp>
 
 namespace Socks
 {

@@ -1,5 +1,5 @@
-#include <socks_http.h>
-#include <system_impl.h>
+#include <socks_http.hpp>
+#include <system_impl.hpp>
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>

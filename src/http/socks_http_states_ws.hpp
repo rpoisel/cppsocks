@@ -1,8 +1,8 @@
-#ifndef SOCKS_HTTP_STATES_WS_H
-#define SOCKS_HTTP_STATES_WS_H
+#ifndef SOCKS_HTTP_STATES_WS_HPP
+#define SOCKS_HTTP_STATES_WS_HPP
 
-#include <socks_http_states.h>
-#include <socks_ws_handler.h>
+#include <socks_http_states.hpp>
+#include <socks_ws_handler.hpp>
 
 namespace Socks
 {
@@ -28,4 +28,4 @@ class HttpWsState final : public HttpState
 } // namespace Network
 } // namespace Socks
 
-#endif /* SOCKS_HTTP_STATES_WS_H */
+#endif /* SOCKS_HTTP_STATES_WS_HPP */

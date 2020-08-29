@@ -25,9 +25,6 @@ using Socks::Network::Tcp::SocketInstance;
 class ConnMgr final
 {
   public:
-  ConnMgr() = default;
-  ~ConnMgr() = default;
-
   void addConn(Connection* connection)
   {
     std::unique_lock<std::mutex> lk(mtx);
@@ -56,7 +53,6 @@ class PushHandler final : public ServerHandler
 {
   public:
   PushHandler(SocketInstance socket, Server* server, ConnMgr& connMgr) : ServerHandler{socket, server}, connMgr(connMgr) {}
-  ~PushHandler() = default;
 
   void onConnect() override
   {

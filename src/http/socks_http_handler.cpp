@@ -42,7 +42,7 @@ static void parseHeaders(char const* request, std::size_t len, HeadersMap& heade
   }
 }
 
-bool hasHeaderField(HeadersMap const& headers, std::string const& key, std::string const& value)
+static bool hasHeaderField(HeadersMap const& headers, std::string const& key, std::string const& value)
 {
   auto itr = headers.find(key);
   if (itr == headers.end())
@@ -52,16 +52,16 @@ bool hasHeaderField(HeadersMap const& headers, std::string const& key, std::stri
   return itr->second.find(value) != std::string::npos;
 }
 
-bool hasHeaderField(HeadersMap const& headers, std::string const& key) { return headers.find(key) != headers.end(); }
+static bool hasHeaderField(HeadersMap const& headers, std::string const& key) { return headers.find(key) != headers.end(); }
 
-bool isWsRequest(HeadersMap const& headers)
+static bool isWsRequest(HeadersMap const& headers)
 {
   return hasHeaderField(headers, "Upgrade", "websocket") &&
          (hasHeaderField(headers, "Connection", "Upgrade") || hasHeaderField(headers, "Connection", "upgrade")) &&
          hasHeaderField(headers, "Sec-WebSocket-Key");
 }
 
-void RequestInfo::parse(char const* request, std::size_t len)
+SOCKS_INLINE void RequestInfo::parse(char const* request, std::size_t len)
 {
   if (len < 3)
   {
@@ -100,9 +100,9 @@ void RequestInfo::parse(char const* request, std::size_t len)
   }
 }
 
-HttpConnection::HttpConnection(Socks::Network::Tcp::Connection* tcpConnection) : tcpConnection{tcpConnection} {}
+SOCKS_INLINE HttpConnection::HttpConnection(Socks::Network::Tcp::Connection* tcpConnection) : tcpConnection{tcpConnection} {}
 
-void HttpConnection::http_200(std::streampos contentLength)
+SOCKS_INLINE void HttpConnection::http_200(std::streampos contentLength)
 {
   http_response_code("200 OK");
   std::stringstream response;
@@ -111,7 +111,7 @@ void HttpConnection::http_200(std::streampos contentLength)
   end_headers();
 }
 
-void HttpConnection::http_response_code(char const* responseCode)
+SOCKS_INLINE void HttpConnection::http_response_code(char const* responseCode)
 {
   constexpr char const* const HTTP_VERSION = "HTTP/1.1";
 
@@ -119,8 +119,8 @@ void HttpConnection::http_response_code(char const* responseCode)
   response << HTTP_VERSION << " " << responseCode << NEWLINE << "Server: CPP Socks" << NEWLINE;
   tcpConnection->send(response.str().c_str(), response.str().length());
 }
-void HttpConnection::end_headers() { tcpConnection->send(NEWLINE, std::strlen(NEWLINE)); }
-void HttpConnection::write(char const* buf, std::size_t len) { tcpConnection->send(buf, len); }
+SOCKS_INLINE void HttpConnection::end_headers() { tcpConnection->send(NEWLINE, std::strlen(NEWLINE)); }
+SOCKS_INLINE void HttpConnection::write(char const* buf, std::size_t len) { tcpConnection->send(buf, len); }
 
 static std::streampos get_file_size(std::string const& path)
 {
@@ -128,7 +128,7 @@ static std::streampos get_file_size(std::string const& path)
   return in_fs.tellg();
 }
 
-void HttpFileHandler::do_GET(HttpConnection* connection, RequestInfo const& requestInfo)
+SOCKS_INLINE void HttpFileHandler::do_GET(HttpConnection* connection, RequestInfo const& requestInfo)
 {
   char const* path = requestInfo.path();
 

@@ -78,4 +78,8 @@ class HttpInitState final : public HttpState
 } // namespace Network
 } // namespace Socks
 
+#if SOCKS_HEADER_ONLY == 1
+#include <socks_http_states.cpp>
+#endif /* SOCKS_HEADER_ONLY */
+
 #endif /* SOCKS_HTTP_STATES_HPP */

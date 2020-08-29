@@ -79,8 +79,8 @@ class TcpServerHandlerFactory final : public ServerHandlerFactory
   WsHandlerFactory& wsHandlerFactory;
 };
 
-void Server::serve(Context& context, HttpHandlerFactory& httpHandlerFactory, WsHandlerFactory& wsHandlerFactory,
-                   ServerOptions const& options)
+SOCKS_INLINE void Server::serve(Context& context, HttpHandlerFactory& httpHandlerFactory, WsHandlerFactory& wsHandlerFactory,
+                                ServerOptions const& options)
 {
   TcpServerHandlerFactory tcpHandlerFactory(httpHandlerFactory, wsHandlerFactory);
   Socks::Network::Tcp::ServerOptions tcpOptions(options.port, options.maxClients);

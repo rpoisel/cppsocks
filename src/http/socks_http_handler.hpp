@@ -121,4 +121,8 @@ class HttpHandlerNullFactory final : public HttpHandlerFactory
 } // namespace Network
 } // namespace Socks
 
+#if SOCKS_HEADER_ONLY == 1
+#include <socks_http_handler.cpp>
+#endif /* SOCKS_HEADER_ONLY */
+
 #endif /* SOCKS_HTTP_HANDLER_HPP */

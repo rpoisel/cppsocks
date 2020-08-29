@@ -86,4 +86,8 @@ class WsHandlerNullFactory final : public WsHandlerFactory
 } // namespace Network
 } // namespace Socks
 
+#if SOCKS_HEADER_ONLY == 1
+#include <socks_ws_handler.cpp>
+#endif /* SOCKS_HEADER_ONLY */
+
 #endif /* SOCKS_WS_HANDLER_HPP */

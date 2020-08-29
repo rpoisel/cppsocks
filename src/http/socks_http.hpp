@@ -58,4 +58,8 @@ class Server final
 } // namespace Network
 } // namespace Socks
 
+#if SOCKS_HEADER_ONLY == 1
+#include <socks_http.cpp>
+#endif /* SOCKS_HEADER_ONLY */
+
 #endif /* SOCKS_HTTP_HPP */

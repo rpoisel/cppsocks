@@ -15,7 +15,7 @@ namespace Network
 namespace Tcp
 {
 
-void ClientWorker::run()
+SOCKS_INLINE void ClientWorker::run()
 {
   try
   {
@@ -31,7 +31,7 @@ void ClientWorker::run()
   _isActive = false;
 }
 
-void ClientWorker::loop()
+SOCKS_INLINE void ClientWorker::loop()
 {
   MsgBuf buf;
 

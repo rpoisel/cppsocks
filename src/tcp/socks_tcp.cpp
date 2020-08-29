@@ -18,7 +18,7 @@ using ClientWorkers = std::list<ClientWorker>;
 
 static void cleanup(ClientWorkers& workers);
 
-void Server::serve(Context& context, ServerHandlerFactory& handlerFactory, ServerOptions const& options)
+SOCKS_INLINE void Server::serve(Context& context, ServerHandlerFactory& handlerFactory, ServerOptions const& options)
 {
   ClientWorkers workers;
 

@@ -29,7 +29,10 @@ class Server final
 
 } // namespace Tcp
 } // namespace Network
-
 } // namespace Socks
+
+#if SOCKS_HEADER_ONLY == 1
+#include <socks_tcp.cpp>
+#endif /* SOCKS_HEADER_ONLY */
 
 #endif /* SOCKS_TCP_HPP */

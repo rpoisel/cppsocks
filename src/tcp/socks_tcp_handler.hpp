@@ -83,7 +83,6 @@ class ServerHandlerFactory
 
 } // namespace Tcp
 } // namespace Network
-
 } // namespace Socks
 
 #endif /* SOCKS_TCP_HANDLER_HPP */

@@ -25,7 +25,7 @@ static std::string createAcceptKey(std::string const& client_key)
   return base64::encode(sha1buf, sizeof(sha1buf));
 }
 
-void HttpWsState::onEnter()
+SOCKS_INLINE void HttpWsState::onEnter()
 {
   std::stringstream response;
   response << "HTTP/1.1 101 Switching Protocols\r\n"
@@ -42,7 +42,7 @@ void HttpWsState::onEnter()
   handler->onConnect();
 }
 
-void HttpWsState::onReceive(Byte const* buf, std::size_t len)
+SOCKS_INLINE void HttpWsState::onReceive(Byte const* buf, std::size_t len)
 {
   Byte payload[1024];
   auto payloadLength = sizeof(payload) / sizeof(payload[0]);
@@ -62,7 +62,7 @@ void HttpWsState::onReceive(Byte const* buf, std::size_t len)
   }
 }
 
-void HttpWsState::onDisconnect() { handler->onDisconnect(); }
+SOCKS_INLINE void HttpWsState::onDisconnect() { handler->onDisconnect(); }
 
 } // namespace Http
 } // namespace Network

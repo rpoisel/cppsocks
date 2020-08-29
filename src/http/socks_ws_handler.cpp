@@ -7,7 +7,7 @@ namespace Network
 {
 namespace Http
 {
-std::size_t WsConnection::send(Byte const* buf, std::size_t len)
+SOCKS_INLINE std::size_t WsConnection::send(Byte const* buf, std::size_t len)
 {
   auto response = WebSocketFrame::encode(buf, len, true, WebSocketFrame::OPCODE_BINARY);
   tcpConnection->send(response.data(), response.length());

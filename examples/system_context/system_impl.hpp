@@ -67,4 +67,8 @@ class ListenSocket final : public Socks::Network::Tcp::ListenSocket
 
 } // namespace Posix
 
+#if SOCKS_HEADER_ONLY == 1
+#include <system_posix.cpp>
+#endif /* SOCKS_HEADER_ONLY */
+
 #endif /* SYSTEM_POSIX_HPP */

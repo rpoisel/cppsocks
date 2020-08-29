@@ -3,5 +3,5 @@ add_executable(tcp_echo
 )
 
 target_link_libraries(tcp_echo PRIVATE
-  sys_ctx_posix
+  sys_ctx_posix_header_only
 )

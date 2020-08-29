@@ -12,7 +12,7 @@ namespace Network
 {
 namespace Http
 {
-void HttpInitState::onReceive(Byte const* buf, std::size_t len)
+SOCKS_INLINE void HttpInitState::onReceive(Byte const* buf, std::size_t len)
 {
   constexpr std::array<char, 4> TERMINATOR = {'\r', '\n', '\r', '\n'};
   try
@@ -49,7 +49,7 @@ void HttpInitState::onReceive(Byte const* buf, std::size_t len)
   fsm->tcpConnection()->close();
 }
 
-void HttpGetState::onEnter()
+SOCKS_INLINE void HttpGetState::onEnter()
 {
   // Plain HTTP is a stateless protocoll, so the httpConnection can be created ad-hoc
   Socks::Network::Http::HttpConnection httpConnection(fsm->tcpConnection());
@@ -57,7 +57,7 @@ void HttpGetState::onEnter()
   fsm->tcpConnection()->close();
 }
 
-void HttpGetState::onReceive(Byte const* buf, std::size_t len)
+SOCKS_INLINE void HttpGetState::onReceive(Byte const* buf, std::size_t len)
 {
   (void)buf;
   (void)len;

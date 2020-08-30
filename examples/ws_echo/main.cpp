@@ -24,7 +24,10 @@ class WsEchoHandler final : public WsHandler
   public:
   WsEchoHandler(Socks::Network::Tcp::Connection* tcpConnection) : WsHandler(tcpConnection) {}
   void onConnect() override { spdlog::info("WebSocket connect."); }
-  void onData(Socks::Byte const* buf, std::size_t len) override { connection()->send(buf, len); }
+  void onData(Socks::Byte const* buf, std::size_t len, std::uint8_t opcode) override
+  {
+    connection()->send(buf, len, opcode);
+  }
   void onDisconnect() override { spdlog::info("WebSocket disconnect."); }
 };
 

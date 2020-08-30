@@ -6,6 +6,9 @@
 #include <socks_http.hpp>
 #include <socks_ws_handler.hpp>
 
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
+
 using ConnMgr = class ElemMgr<Socks::Network::Http::WsConnection>;
 
 class WsPushHandler final : public Socks::Network::Http::WsHandler
@@ -18,7 +21,7 @@ class WsPushHandler final : public Socks::Network::Http::WsHandler
 
   void onConnect() override;
   void onDisconnect() override;
-  void onData(Socks::Byte const* buf, std::size_t len) override;
+  void onData(Socks::Byte const* buf, std::size_t len, std::uint8_t opcode) override;
 
   private:
   WsPushHandler(WsPushHandler const&) = delete;

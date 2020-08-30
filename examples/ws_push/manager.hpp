@@ -1,12 +1,12 @@
 #ifndef MANAGER_HPP
 #define MANAGER_HPP
 
-#include <socks_tcp_types.hpp>
+#include <socks_ws_types.hpp>
 
-#include <set>
-#include <mutex>
-#include <cstddef>
 #include <algorithm>
+#include <cstddef>
+#include <mutex>
+#include <set>
 
 template <typename C>
 class ElemMgr final
@@ -27,7 +27,8 @@ class ElemMgr final
   void push(Socks::Byte const* buf, std::size_t len)
   {
     std::unique_lock<std::mutex> lk(mtx);
-    std::for_each(elements.begin(), elements.end(), [&](C* connection) { connection->send(buf, len); });
+    std::for_each(elements.begin(), elements.end(),
+                  [&](C* connection) { connection->send(buf, len, Socks::Network::Http::WebSocketFrame::OPCODE_TEXT); });
   }
 
   private:

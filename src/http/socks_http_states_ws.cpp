@@ -44,16 +44,31 @@ SOCKS_INLINE void HttpWsState::onEnter()
 
 SOCKS_INLINE void HttpWsState::onReceive(Byte const* buf, std::size_t len)
 {
-  Byte payload[1024];
-  auto payloadLength = sizeof(payload) / sizeof(payload[0]);
   try
   {
+    Byte payload[1024];
+    auto payloadLength = sizeof(payload) / sizeof(payload[0]);
     std::uint8_t opcode;
-    // TODO: actually, data has to be buffered until fin is received
     auto fin = WebSocketFrame::decode(buf, len, payload, &payloadLength, &opcode);
+    switch (opcode)
+    {
+    case WebSocketFrame::OPCODE_CONNECTION_CLOSE:
+      handler->connection()->close();
+      return;
+    case WebSocketFrame::OPCODE_CONNECTION_PING:
+    {
+      auto response = WebSocketFrame::createPong(payload, payloadLength);
+      fsm->tcpConnection()->send(response.payload(), response.payloadLength());
+      return;
+    }
+    default:
+      // all other data is forwarded to the WsHandlerInstance
+      break;
+    }
+    // TODO: actually, data has to be buffered until fin is received
     if (fin)
     {
-      handler->onData(payload, payloadLength);
+      handler->onData(payload, payloadLength, opcode);
     }
   }
   catch (std::invalid_argument& exc)

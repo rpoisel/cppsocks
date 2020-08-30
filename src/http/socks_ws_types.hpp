@@ -1,7 +1,7 @@
-#ifndef SOCKS_WS_H
-#define SOCKS_WS_H
+#ifndef SOCKS_WS_TYPES_H
+#define SOCKS_WS_TYPES_H
 
-#include <socks_ws_handler.hpp>
+#include <socks_tcp_types.hpp>
 
 #include <cstdint>
 #include <cstring>
@@ -16,12 +16,43 @@ namespace Http
 class WebSocketFrame
 {
   public:
+  static constexpr std::uint8_t const OPCODE_TEXT = 0x01;
   static constexpr std::uint8_t const OPCODE_BINARY = 0x02;
+  static constexpr std::uint8_t const OPCODE_CONNECTION_CLOSE = 0x08;
+  static constexpr std::uint8_t const OPCODE_CONNECTION_PING = 0x09;
+  static constexpr std::uint8_t const OPCODE_CONNECTION_PONG = 0x0A;
 
-  static WebSocketFrame encode(Byte const* payload, std::size_t payloadLength, bool fin, std::uint8_t opcode)
+  static WebSocketFrame encode(Byte const* payload_, std::size_t payloadLength_, bool fin)
   {
-    return WebSocketFrame(fin, opcode, payload, payloadLength);
+    return WebSocketFrame(fin, OPCODE_BINARY, payload_, payloadLength_);
   }
+
+  static WebSocketFrame encode(Byte const* payload_, std::size_t payloadLength_, bool fin, std::uint8_t opcode)
+  {
+    return WebSocketFrame(fin, opcode, payload_, payloadLength_);
+  }
+
+  static WebSocketFrame encode(char const* payload_, std::size_t payloadLength_, bool fin)
+  {
+    return WebSocketFrame(fin, OPCODE_TEXT, reinterpret_cast<Byte const*>(payload_), payloadLength_);
+  }
+
+  using CloseReasonCode = std::uint16_t;
+  static WebSocketFrame createConnectionClose(CloseReasonCode reasonCode = 0)
+  {
+    Byte payload_[2];
+
+    payload_[0] = (reasonCode & 0x00ff);
+    payload_[1] = (reasonCode >> 8);
+
+    return WebSocketFrame(true, OPCODE_CONNECTION_CLOSE, &payload_[0], sizeof(payload_));
+  }
+
+  static WebSocketFrame createPong(Byte const* buf, std::size_t len)
+  {
+    return WebSocketFrame(true, OPCODE_CONNECTION_PONG, buf, len);
+  }
+
   static bool decode(Byte const* buf, std::uint8_t len, Byte* payload /* in */, std::size_t* payloadLength /* inout */,
                      std::uint8_t* opcode /* output */)
   {
@@ -103,4 +134,4 @@ class WebSocketFrame
 } // namespace Network
 } // namespace Socks
 
-#endif /* SOCKS_WS_H */
+#endif /* SOCKS_WS_TYPES_H */

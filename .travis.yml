@@ -91,7 +91,6 @@ before_script:
   - which $CC
   - $CXX --version
   - cmake --version
-  - pip3 install pytest
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
@@ -108,4 +107,5 @@ script:
   # unit tests
   - ctest -j2 --output-on-failure
   # integration tests
-  - pytest ../test/test_tcp.py
+  - ../test/integration_tests.sh
+

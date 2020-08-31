@@ -27,7 +27,7 @@ def ws_fixture():
     except TimeoutExpired:
         proc.kill()
 
-async def communicate():
+async def communicate_echo():
     uri = "ws://127.0.0.1:8080/"
     async with websockets.connect(uri) as websocket:
         request = "Some Test"
@@ -37,5 +37,17 @@ async def communicate():
             response = await websocket.recv()
             assert request == response
 
+async def communicate_ping():
+    uri = "ws://127.0.0.1:8080/"
+    async with websockets.connect(uri) as websocket:
+
+        for i in range(0, 10):
+            await websocket.ping()
+
+
 def test_echo(ws_fixture):
-    asyncio.get_event_loop().run_until_complete(communicate())
+    asyncio.get_event_loop().run_until_complete(communicate_echo())
+
+def test_ping(ws_fixture):
+    asyncio.get_event_loop().run_until_complete(communicate_ping())
+

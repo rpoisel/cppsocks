@@ -3,9 +3,8 @@
 
 import asyncio
 
-import websockets
-
 import pytest
+import websockets
 
 
 @pytest.fixture
@@ -44,10 +43,24 @@ async def communicate_ping():
         for i in range(0, 10):
             await websocket.ping()
 
+async def communicate_large_msg():
+    uri = "ws://127.0.0.1:8080/"
+    async with websockets.connect(uri) as websocket:
+        request = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Sed elementum tempus egestas sed sed risus pretium quam. Lacinia quis vel eros donec ac odio tempor orci dapibus. Sem viverra aliquet eget sit amet tellus cras. Euismod lacinia at quis risus sed vulputate odio. Ipsum consequat nisl vel pretium. Egestas erat imperdiet sed euismod nisi porta lorem mollis aliquam. Suscipit tellus mauris a diam. Blandit massa enim nec dui nunc mattis enim ut tellus. Tempus iaculis urna id volutpat lacus laoreet non curabitur. Nam at lectus urna duis convallis convallis tellus. Sit amet consectetur adipiscing elit ut aliquam purus sit amet. Donec enim diam vulputate ut pharetra sit amet aliquam."
+
+        for i in range(0, 2):
+            await websocket.send(request)
+            response = await websocket.recv()
+            assert request == response
+
+
 
 def test_echo(ws_fixture):
     asyncio.get_event_loop().run_until_complete(communicate_echo())
 
 def test_ping(ws_fixture):
     asyncio.get_event_loop().run_until_complete(communicate_ping())
+
+def test_large_msg(ws_fixture):
+    asyncio.get_event_loop().run_until_complete(communicate_large_msg())
 

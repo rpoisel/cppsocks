@@ -22,7 +22,9 @@ target_compile_definitions(socks_tcp PRIVATE
 target_compile_options(socks_tcp PUBLIC
   -Wall
   -Wextra
- )
+)
+
+set_property(TARGET socks_tcp PROPERTY CXX_STANDARD 11)
 
 ### header-only library
 add_library(socks_tcp_header_only INTERFACE)

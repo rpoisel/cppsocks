@@ -24,11 +24,10 @@ class ElemMgr final
     elements.erase(elem);
   }
 
-  void push(Socks::Byte const* buf, std::size_t len)
+  void push(char const* buf, std::size_t len)
   {
     std::unique_lock<std::mutex> lk(mtx);
-    std::for_each(elements.begin(), elements.end(),
-                  [&](C* connection) { connection->send(buf, len, Socks::Network::Http::WebSocketFrame::OPCODE_TEXT); });
+    std::for_each(elements.begin(), elements.end(), [&](C* element) { element->send(buf, len); });
   }
 
   private:

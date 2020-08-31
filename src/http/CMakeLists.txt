@@ -21,6 +21,8 @@ target_compile_definitions(socks_http PRIVATE
   -DSOCKS_INLINE=
 )
 
+set_property(TARGET socks_http PROPERTY CXX_STANDARD 11)
+
 ### header-only library
 add_library(socks_http_header_only INTERFACE)
 

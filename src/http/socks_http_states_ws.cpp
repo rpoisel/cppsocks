@@ -1,5 +1,5 @@
 #include <socks_http_states_ws.hpp>
-#include <socks_ws_types.hpp>
+#include <socks_ws_frame.hpp>
 
 #include <cppcodec/base64_rfc4648.hpp>
 #include <digestpp.hpp>
@@ -46,30 +46,43 @@ SOCKS_INLINE void HttpWsState::onReceive(Byte const* buf, std::size_t len)
 {
   try
   {
-    Byte payload[1024];
-    auto payloadLength = sizeof(payload) / sizeof(payload[0]);
-    std::uint8_t opcode;
-    auto fin = WebSocketFrame::decode(buf, len, payload, &payloadLength, &opcode);
+    std::uint8_t opcode_;
+    bool start = inBuf.size() == 0;
+    auto fin = WebSocketFrame::decode(buf, len, inBuf, &opcode_);
+    if (start)
+    {
+      opcode = opcode_;
+    }
+    if (!fin)
+    {
+      // just received data
+      return;
+    }
+
     switch (opcode)
     {
+    case WebSocketFrame::OPCODE_CONTINUATION:
+      throw std::runtime_error("WebSocket opcode must not be 0 when FIN bit is set.");
+      break;
     case WebSocketFrame::OPCODE_CONNECTION_CLOSE:
       handler->connection()->close();
-      return;
+      break;
     case WebSocketFrame::OPCODE_CONNECTION_PING:
     {
-      auto response = WebSocketFrame::createPong(payload, payloadLength);
+      auto response = WebSocketFrame::createPong(inBuf.data(), inBuf.size());
       fsm->tcpConnection()->send(response.payload(), response.payloadLength());
-      return;
-    }
-    default:
-      // all other data is forwarded to the WsHandlerInstance
       break;
     }
-    // TODO: actually, data has to be buffered until fin is received
-    if (fin)
-    {
-      handler->onData(payload, payloadLength, opcode);
+    case WebSocketFrame::OPCODE_BINARY:
+      handler->onData(inBuf.data(), inBuf.size());
+      break;
+    case WebSocketFrame::OPCODE_TEXT:
+      handler->onText(reinterpret_cast<char const*>(inBuf.data()), inBuf.size());
+      break;
+    default:
+      break;
     }
+    inBuf.clear();
   }
   catch (std::invalid_argument& exc)
   {

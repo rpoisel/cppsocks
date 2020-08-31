@@ -21,7 +21,7 @@ class WsPushHandler final : public Socks::Network::Http::WsHandler
 
   void onConnect() override;
   void onDisconnect() override;
-  void onData(Socks::Byte const* buf, std::size_t len, std::uint8_t opcode) override;
+  void onData(Socks::Byte const* buf, std::size_t len) override;
 
   private:
   WsPushHandler(WsPushHandler const&) = delete;

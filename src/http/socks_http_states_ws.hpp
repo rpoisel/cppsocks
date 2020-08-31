@@ -3,6 +3,7 @@
 
 #include <socks_http_states.hpp>
 #include <socks_ws_handler.hpp>
+#include <socks_ws_types.hpp>
 
 namespace Socks
 {
@@ -10,11 +11,12 @@ namespace Network
 {
 namespace Http
 {
+
 class HttpWsState final : public HttpState
 {
   public:
   explicit HttpWsState(HttpStateContext* fsm)
-      : HttpState{fsm}, handler{fsm->wsHandlerFactory().createWsHandler(fsm->tcpConnection())}
+      : HttpState{fsm}, handler{fsm->wsHandlerFactory().createWsHandler(fsm->tcpConnection())}, opcode{0}, inBuf{}
   {
   }
   void onEnter() override;
@@ -23,6 +25,8 @@ class HttpWsState final : public HttpState
 
   private:
   WsHandlerInstance handler;
+  std::uint8_t opcode;
+  WsBuffer inBuf;
 };
 } // namespace Http
 } // namespace Network

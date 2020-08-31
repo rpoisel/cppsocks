@@ -17,7 +17,8 @@ class WsConnection final
 {
   public:
   explicit WsConnection(Socks::Network::Tcp::Connection* tcpConnection) : tcpConnection{tcpConnection} {}
-  std::size_t send(Byte const* buf, std::size_t len, std::uint8_t opcode);
+  std::size_t send(Byte const* buf, std::size_t len);
+  std::size_t send(char const* buf, std::size_t len /* TODO len is not needed */);
   void close();
 
   private:
@@ -31,7 +32,8 @@ class WsHandler
   virtual ~WsHandler() = default;
 
   virtual void onConnect() = 0;
-  virtual void onData(Byte const* buf, std::size_t len, std::uint8_t opcode) = 0;
+  virtual void onData(Byte const* buf, std::size_t len) = 0;
+  virtual void onText(char const* buf, std::size_t len) { onData(reinterpret_cast<Byte const*>(buf), len); }
   virtual void onDisconnect() = 0;
   virtual std::string subprotocol() { return std::string(); }
 
@@ -65,11 +67,10 @@ class WsHandlerNull final : public WsHandler
   public:
   explicit WsHandlerNull(Socks::Network::Tcp::Connection* tcpConnection) : WsHandler{tcpConnection} {}
   void onConnect() override {}
-  void onData(Byte const* buf, std::size_t len, std::uint8_t opcode) override
+  void onData(Byte const* buf, std::size_t len) override
   {
     (void)buf;
     (void)len;
-    (void)opcode;
   }
   void onDisconnect() override {}
 };

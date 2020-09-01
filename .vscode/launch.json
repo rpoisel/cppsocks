@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/cppsocks-linux-x64-gcc-Linux/src/examples/http_server/http_server",
+            "program": "${workspaceFolder}/build/cppsocks-linux-x64-gcc-Linux/examples/http_server/http_server",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

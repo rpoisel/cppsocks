@@ -22,7 +22,7 @@ using Socks::Network::Tcp::Connection;
 class WsEchoHandler final : public WsHandler
 {
   public:
-  WsEchoHandler(Socks::Network::Tcp::Connection* tcpConnection) : WsHandler(tcpConnection) {}
+  WsEchoHandler(Connection* tcpConnection) : WsHandler(tcpConnection) {}
   void onConnect() override { spdlog::info("WebSocket connect."); }
   void onText(char const* buf, std::size_t len) override { connection()->send(buf, len); }
   void onData(Socks::Byte const* buf, std::size_t len) override { connection()->send(buf, len); }

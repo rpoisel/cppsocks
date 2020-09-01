@@ -5,6 +5,7 @@ add_library(socks_http STATIC
   socks_http_states.cpp
   socks_http_states_ws.cpp
   socks_ws_handler.cpp
+  socks_ws_frame.cpp
 )
 
 target_include_directories(socks_http PUBLIC

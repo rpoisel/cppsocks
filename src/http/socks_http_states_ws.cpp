@@ -77,7 +77,9 @@ SOCKS_INLINE void HttpWsState::onReceive(Byte const* buf, std::size_t len)
       handler->onData(inBuf.data(), inBuf.size());
       break;
     case WebSocketFrame::OPCODE_TEXT:
-      handler->onText(reinterpret_cast<char const*>(inBuf.data()), inBuf.size());
+      inBuf.resize(inBuf.size() + 1);
+      inBuf[inBuf.size() - 1] = '\0';
+      handler->onText(reinterpret_cast<char const*>(inBuf.data()));
       break;
     default:
       break;

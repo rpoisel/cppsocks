@@ -14,9 +14,9 @@ SOCKS_INLINE std::size_t WsConnection::send(Byte const* buf, std::size_t len)
   return response.payloadLength();
 }
 
-SOCKS_INLINE std::size_t WsConnection::send(char const* buf, std::size_t len)
+SOCKS_INLINE std::size_t WsConnection::send(char const* buf)
 {
-  auto response = WebSocketFrame::encode(reinterpret_cast<Byte const*>(buf), len, true, WebSocketFrame::OPCODE_TEXT);
+  auto response = WebSocketFrame::encode(buf);
   tcpConnection->send(response.data(), response.length());
   return response.payloadLength();
 }

@@ -3,6 +3,7 @@
 
 #include <socks_tcp_handler.hpp>
 
+#include <cstring>
 #include <memory>
 #include <string>
 
@@ -18,7 +19,7 @@ class WsConnection final
   public:
   explicit WsConnection(Socks::Network::Tcp::Connection* tcpConnection) : tcpConnection{tcpConnection} {}
   std::size_t send(Byte const* buf, std::size_t len);
-  std::size_t send(char const* buf, std::size_t len /* TODO len is not needed */);
+  std::size_t send(char const* buf);
   void close();
 
   private:
@@ -33,7 +34,7 @@ class WsHandler
 
   virtual void onConnect() = 0;
   virtual void onData(Byte const* buf, std::size_t len) = 0;
-  virtual void onText(char const* buf, std::size_t len) { onData(reinterpret_cast<Byte const*>(buf), len); }
+  virtual void onText(char const* buf) { onData(reinterpret_cast<Byte const*>(buf), std::strlen(buf)); }
   virtual void onDisconnect() = 0;
   virtual std::string subprotocol() { return std::string(); }
 

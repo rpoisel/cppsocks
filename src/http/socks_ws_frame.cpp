@@ -27,9 +27,9 @@ SOCKS_INLINE WebSocketFrame WebSocketFrame::encode(Byte const* payload_, std::si
   return WebSocketFrame(fin, opcode, payload_, payloadLength_);
 }
 
-SOCKS_INLINE WebSocketFrame WebSocketFrame::encode(char const* payload_, std::size_t payloadLength_, bool fin)
+SOCKS_INLINE WebSocketFrame WebSocketFrame::encode(char const* payload_)
 {
-  return WebSocketFrame(fin, OPCODE_TEXT, reinterpret_cast<Byte const*>(payload_), payloadLength_);
+  return WebSocketFrame(true, OPCODE_TEXT, reinterpret_cast<Byte const*>(payload_), std::strlen(payload_));
 }
 
 SOCKS_INLINE WebSocketFrame WebSocketFrame::createPong(Byte const* buf, std::size_t len)

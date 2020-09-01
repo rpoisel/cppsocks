@@ -24,10 +24,10 @@ class ElemMgr final
     elements.erase(elem);
   }
 
-  void push(char const* buf, std::size_t len)
+  void push(char const* buf)
   {
     std::unique_lock<std::mutex> lk(mtx);
-    std::for_each(elements.begin(), elements.end(), [&](C* element) { element->send(buf, len); });
+    std::for_each(elements.begin(), elements.end(), [&](C* element) { element->send(buf); });
   }
 
   private:

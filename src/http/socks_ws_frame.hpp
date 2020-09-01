@@ -51,7 +51,7 @@ class WebSocketFrame
 
   static WebSocketFrame encode(Byte const* payload_, std::size_t payloadLength_, bool fin);
   static WebSocketFrame encode(Byte const* payload_, std::size_t payloadLength_, bool fin, std::uint8_t opcode);
-  static WebSocketFrame encode(char const* payload_, std::size_t payloadLength_, bool fin);
+  static WebSocketFrame encode(char const* payload_);
   static WebSocketFrame createConnectionClose(CloseReasonCode reasonCode = 0);
   static WebSocketFrame createPong(Byte const* buf, std::size_t len);
   static bool decode(Byte const* buf, std::size_t len, WsBuffer& payloadBuf, std::uint8_t* opcode /* output */);
@@ -61,6 +61,7 @@ class WebSocketFrame
   Byte const* payload() const { return payloadLength() < 126 ? &data_[2] : &data_[4]; }
   std::size_t payloadLength() const;
   bool fin() const { return (data_[0] & 0x80) == 0x80; }
+  bool mask() const { return (data_[1] & 0x80) == 0x80; }
 
   private:
   WebSocketFrame(bool fin, std::uint8_t opcode, Byte const* payload, std::size_t payloadLength);

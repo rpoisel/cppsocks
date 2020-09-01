@@ -18,3 +18,15 @@ target_link_libraries(test_byteorder_app PRIVATE
 
 add_test(NAME test_byteorder COMMAND test_byteorder_app)
 
+### WebSocketFrame
+add_executable(test_ws_frame_app
+  test_ws_frame.cpp
+)
+
+target_link_libraries(test_ws_frame_app PRIVATE
+  TestMain
+  socks_http
+)
+
+add_test(NAME test_ws_frame COMMAND test_ws_frame_app)
+

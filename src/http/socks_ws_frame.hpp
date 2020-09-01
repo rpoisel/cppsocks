@@ -138,6 +138,8 @@ class WebSocketFrame
     return frameLen;
   }
 
+  bool fin() const { return (data_[0] & 0x80) == 0x80; }
+
   private:
   WebSocketFrame(bool fin, std::uint8_t opcode, Byte const* payload, std::size_t payloadLength) : data_{0, 0}
   {

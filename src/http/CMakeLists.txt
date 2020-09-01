@@ -11,8 +11,11 @@ target_include_directories(socks_http PUBLIC
   ${CMAKE_CURRENT_LIST_DIR}
 )
 
-target_link_libraries(socks_http PRIVATE
+target_link_libraries(socks_http PUBLIC
   socks_tcp
+)
+
+target_link_libraries(socks_http PRIVATE
   digestpp_header_only
   cppcodec_header_only
 )

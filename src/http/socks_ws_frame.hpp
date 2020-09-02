@@ -1,7 +1,7 @@
 #ifndef SOCKS_WS_FRAME_HPP
 #define SOCKS_WS_FRAME_HPP
 
-#include <socks_tcp_types.hpp>
+#include <socks_tcp_util.hpp>
 #include <socks_ws_types.hpp>
 
 #include <cstdint>
@@ -12,26 +12,6 @@ namespace Socks
 {
 namespace Network
 {
-
-template <typename T>
-static T ntoh(Byte const* data)
-{
-  T result = 0;
-  for (std::size_t cnt = 0; cnt < sizeof(T); cnt++)
-  {
-    result += (static_cast<T>(data[cnt]) << ((sizeof(T) - cnt - 1) * 8));
-  }
-  return result;
-}
-
-template <typename T>
-static void hton(Byte* data, T value)
-{
-  for (std::size_t cnt = 0; cnt < sizeof(T); cnt++)
-  {
-    data[cnt] = ((value >> ((sizeof(T) - 1 - cnt) * 8)) & 0xff);
-  }
-}
 
 namespace Http
 {

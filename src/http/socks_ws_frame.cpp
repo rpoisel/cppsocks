@@ -13,35 +13,16 @@ SOCKS_INLINE WebSocketFrame WebSocketFrame::createConnectionClose(CloseReasonCod
 
   hton(&payload_[0], reasonCode);
 
-  return WebSocketFrame(true, OPCODE_CONNECTION_CLOSE, &payload_[0], sizeof(payload_));
-}
-
-SOCKS_INLINE WebSocketFrame WebSocketFrame::encode(Byte const* payload_, std::size_t payloadLength_, bool fin)
-{
-  return WebSocketFrame(fin, OPCODE_BINARY, payload_, payloadLength_);
-}
-
-SOCKS_INLINE WebSocketFrame WebSocketFrame::encode(Byte const* payload_, std::size_t payloadLength_, bool fin,
-                                                   std::uint8_t opcode)
-{
-  return WebSocketFrame(fin, opcode, payload_, payloadLength_);
-}
-
-SOCKS_INLINE WebSocketFrame WebSocketFrame::encode(char const* payload_)
-{
-  return WebSocketFrame(true, OPCODE_TEXT, reinterpret_cast<Byte const*>(payload_), std::strlen(payload_));
+  return WebSocketFrame(&payload_[0], sizeof(payload_), true, OPCODE_CONNECTION_CLOSE);
 }
 
 SOCKS_INLINE WebSocketFrame WebSocketFrame::createPong(Byte const* buf, std::size_t len)
 {
-  return WebSocketFrame(true, OPCODE_CONNECTION_PONG, buf, len);
+  return WebSocketFrame(buf, len, true, OPCODE_CONNECTION_PONG);
 }
 
-SOCKS_INLINE bool WebSocketFrame::decode(Byte const* buf, std::size_t len, WsBuffer& payloadBuf,
-                                         std::uint8_t* opcode /* output */)
+SOCKS_INLINE bool WebSocketFrame::decode(Byte const* buf, std::size_t len, WsBuffer& payloadBuf, OpCode* opcode /* output */)
 {
-  (void)len;
-
   if (len < 2)
   {
     throw std::invalid_argument("WebSocket header is missing.");
@@ -95,7 +76,17 @@ SOCKS_INLINE std::size_t WebSocketFrame::payloadLength() const
   return frameLen;
 }
 
-SOCKS_INLINE WebSocketFrame::WebSocketFrame(bool fin, std::uint8_t opcode, Byte const* payload, std::size_t payloadLength)
+SOCKS_INLINE WebSocketFrame::WebSocketFrame(Byte const* payload, std::size_t payloadLength, bool fin)
+    : WebSocketFrame(payload, payloadLength, fin, OPCODE_BINARY)
+{
+}
+
+SOCKS_INLINE WebSocketFrame::WebSocketFrame(char const* payload)
+    : WebSocketFrame(reinterpret_cast<Byte const*>(payload), std::strlen(payload), true, OPCODE_TEXT)
+{
+}
+
+SOCKS_INLINE WebSocketFrame::WebSocketFrame(Byte const* payload, std::size_t payloadLength, bool fin, OpCode opcode)
     : data_(2)
 {
   std::size_t headerSize = 2;

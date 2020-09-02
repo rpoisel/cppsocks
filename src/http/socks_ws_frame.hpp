@@ -12,6 +12,27 @@ namespace Socks
 {
 namespace Network
 {
+
+template <typename T>
+static T ntoh(Byte const* data)
+{
+  T result = 0;
+  for (std::size_t cnt = 0; cnt < sizeof(T); cnt++)
+  {
+    result += (static_cast<T>(data[cnt]) << ((sizeof(T) - cnt - 1) * 8));
+  }
+  return result;
+}
+
+template <typename T>
+static void hton(Byte* data, T value)
+{
+  for (std::size_t cnt = 0; cnt < sizeof(T); cnt++)
+  {
+    data[cnt] = ((value >> ((sizeof(T) - 1 - cnt) * 8)) & 0xff);
+  }
+}
+
 namespace Http
 {
 
@@ -19,42 +40,22 @@ class WebSocketFrame
 {
   public:
   using CloseReasonCode = std::uint16_t;
+  using OpCode = std::uint8_t;
 
-  static constexpr std::uint8_t const OPCODE_CONTINUATION = 0x00;
-  static constexpr std::uint8_t const OPCODE_TEXT = 0x01;
-  static constexpr std::uint8_t const OPCODE_BINARY = 0x02;
-  static constexpr std::uint8_t const OPCODE_CONNECTION_CLOSE = 0x08;
-  static constexpr std::uint8_t const OPCODE_CONNECTION_PING = 0x09;
-  static constexpr std::uint8_t const OPCODE_CONNECTION_PONG = 0x0A;
+  static constexpr OpCode const OPCODE_CONTINUATION = 0x00;
+  static constexpr OpCode const OPCODE_TEXT = 0x01;
+  static constexpr OpCode const OPCODE_BINARY = 0x02;
+  static constexpr OpCode const OPCODE_CONNECTION_CLOSE = 0x08;
+  static constexpr OpCode const OPCODE_CONNECTION_PING = 0x09;
+  static constexpr OpCode const OPCODE_CONNECTION_PONG = 0x0A;
 
-  template <typename T>
-  static T ntoh(Byte const* data)
-  {
-    // TODO check if host works natively with network byte-order
-    T result = 0;
-    for (std::size_t cnt = 0; cnt < sizeof(T); cnt++)
-    {
-      result += (static_cast<T>(data[cnt]) << ((sizeof(T) - cnt - 1) * 8));
-    }
-    return result;
-  }
-
-  template <typename T>
-  static void hton(Byte* data, T value)
-  {
-    // TODO check if host works natively with network byte-order
-    for (std::size_t cnt = 0; cnt < sizeof(T); cnt++)
-    {
-      data[cnt] = ((value >> ((sizeof(T) - 1 - cnt) * 8)) & 0xff);
-    }
-  }
-
-  static WebSocketFrame encode(Byte const* payload_, std::size_t payloadLength_, bool fin);
-  static WebSocketFrame encode(Byte const* payload_, std::size_t payloadLength_, bool fin, std::uint8_t opcode);
-  static WebSocketFrame encode(char const* payload_);
   static WebSocketFrame createConnectionClose(CloseReasonCode reasonCode = 0);
   static WebSocketFrame createPong(Byte const* buf, std::size_t len);
-  static bool decode(Byte const* buf, std::size_t len, WsBuffer& payloadBuf, std::uint8_t* opcode /* output */);
+  static bool decode(Byte const* buf, std::size_t len, WsBuffer& payloadBuf, OpCode* opcode /* output */);
+
+  explicit WebSocketFrame(Byte const* payload, std::size_t payloadLength, bool fin, OpCode opcode);
+  explicit WebSocketFrame(Byte const* payload, std::size_t payloadLength, bool fin);
+  explicit WebSocketFrame(char const* payload);
 
   Byte const* data() const { return data_.data(); }
   std::size_t length() const { return data_.size(); }
@@ -64,8 +65,6 @@ class WebSocketFrame
   bool mask() const { return (data_[1] & 0x80) == 0x80; }
 
   private:
-  WebSocketFrame(bool fin, std::uint8_t opcode, Byte const* payload, std::size_t payloadLength);
-
   WsBuffer data_;
 };
 

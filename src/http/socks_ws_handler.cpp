@@ -9,14 +9,14 @@ namespace Http
 {
 SOCKS_INLINE std::size_t WsConnection::send(Byte const* buf, std::size_t len)
 {
-  auto response = WebSocketFrame::encode(buf, len, true, WebSocketFrame::OPCODE_BINARY);
+  auto response = WebSocketFrame(buf, len, true, WebSocketFrame::OPCODE_BINARY);
   tcpConnection->send(response.data(), response.length());
   return response.payloadLength();
 }
 
 SOCKS_INLINE std::size_t WsConnection::send(char const* buf)
 {
-  auto response = WebSocketFrame::encode(buf);
+  auto response = WebSocketFrame(buf);
   tcpConnection->send(response.data(), response.length());
   return response.payloadLength();
 }

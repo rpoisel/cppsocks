@@ -21,6 +21,22 @@ addons: &gcc7
     sources:
       - ubuntu-toolchain-r-test
 
+# gcc 8.0
+addons: &gcc8
+  apt:
+    packages:
+      - g++-8
+    sources:
+      - ubuntu-toolchain-r-test
+
+# gcc 9.0
+addons: &gcc9
+  apt:
+    packages:
+      - g++-9
+    sources:
+      - ubuntu-toolchain-r-test
+
 # Clang 3.5
 addons: &clang35
   apt:
@@ -45,42 +61,63 @@ addons: &clang10
 matrix:
   include:
     # Test gcc-4.8: C++11, Build=Debug/Release
-    - env: GCC_VERSION=4.8 BUILD_TYPE=Debug CPP=11
+    - env: GCC_VERSION=4.8 BUILD_TYPE=Debug
       os: linux
       addons: *gcc48
 
-    - env: GCC_VERSION=4.8 BUILD_TYPE=Release CPP=11
+    - env: GCC_VERSION=4.8 BUILD_TYPE=Release
       os: linux
       addons: *gcc48
 
-    - env: GCC_VERSION=7 BUILD_TYPE=Release CPP=11
+    - env: GCC_VERSION=7 BUILD_TYPE=Release
       os: linux
       addons: *gcc7
 
     # Test clang-3.5: C++11, Build=Debug/Release
-    - env: CLANG_VERSION=3.5 BUILD_TYPE=Debug CPP=11
+    - env: CLANG_VERSION=3.5 BUILD_TYPE=Debug
       os: linux
       addons: *clang35
 
-    - env: CLANG_VERSION=3.5 BUILD_TYPE=Release CPP=11
+    - env: CLANG_VERSION=3.5 BUILD_TYPE=Release
       os: linux
       addons: *clang35
 
       # osx
-    - env: BUILD_TYPE=Release CPP=11 ASAN=Off TSAN=Off
+    - env: BUILD_TYPE=Release ASAN=Off TSAN=Off
       os: osx
 
     # Test clang-10.0: C++11, Build=Debug/Release
-    - env: CLANG_VERSION=10 BUILD_TYPE=Debug CPP=11
+    - env: CLANG_VERSION=10 BUILD_TYPE=Debug
       os: linux
       dist: bionic
       addons: *clang10
 
-    - env: CLANG_VERSION=10 BUILD_TYPE=Release CPP=11 ASAN=On
+    - env: CLANG_VERSION=10 BUILD_TYPE=Release ASAN=On
       os: linux
       dist: bionic
       addons: *clang10
 
+    # Test gcc-8: C++11, Build=Debug/Release
+    - env: GCC_VERSION=8 BUILD_TYPE=Debug
+      os: linux
+      dist: bionic
+      addons: *gcc8
+
+    - env: GCC_VERSION=8 BUILD_TYPE=Release
+      os: linux
+      dist: bionic
+      addons: *gcc8
+
+    # Test gcc-9: C++11, Build=Debug/Release
+    - env: GCC_VERSION=9 BUILD_TYPE=Debug
+      os: linux
+      dist: bionic
+      addons: *gcc9
+
+    - env: GCC_VERSION=9 BUILD_TYPE=Release
+      os: linux
+      dist: bionic
+      addons: *gcc9
 
 before_script:
   - if [ -n "$GCC_VERSION" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
@@ -94,18 +131,18 @@ before_script:
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
-  - mkdir -p build && cd build
+  - mkdir -p build
+  - cd build
   - |
     cmake .. \
       --warn-uninitialized \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-      -DCMAKE_CXX_STANDARD=$CPP \
-      -DCMAKE_C_FLAGS_INIT="-Wall -Wextra" \
-      -DCMAKE_CXX_FLAGS_INIT="-Wall -Wextra"
+      -DCOVERAGE=On
 
   - make VERBOSE=1 -j2
   # unit tests
   - ctest -j2 --output-on-failure
   # integration tests
   - ../test/integration_tests.sh
+  - bash <(curl -s https://codecov.io/bash)
 

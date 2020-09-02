@@ -1,7 +1,9 @@
 <p align="center">
-  <!-- add some nice logo here, then <br> -->
   <a href="https://travis-ci.com/rpoisel/cppsocks">
-  <img src="https://api.travis-ci.com/rpoisel/cppsocks.svg?branch=master">
+    <img src="https://api.travis-ci.com/rpoisel/cppsocks.svg?branch=master">
+  </a>
+  <a href="https://codecov.io/gh/rpoisel/cppsocks">
+    <img src="https://codecov.io/gh/rpoisel/cppsocks/branch/master/graph/badge.svg" />
   </a>
 </p>
 

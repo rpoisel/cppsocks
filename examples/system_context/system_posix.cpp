@@ -137,7 +137,7 @@ ssize_t SocketImpl::write(Byte const* buf, std::size_t buflen)
 
 bool internalPoll(int fd, short int flags, int timeout)
 {
-  struct pollfd pollFd = {.fd = fd, .events = flags, .revents = 0};
+  struct pollfd pollFd = {fd, flags, 0};
   auto r = poll(&pollFd, 1, timeout);
   if (r == -1)
   {

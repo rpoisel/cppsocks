@@ -33,7 +33,7 @@ class TcpServerHandler final : public ServerHandler, HttpStateContext
   void setNextState(HttpStateInstance nextState) override
   {
     nextState->onEnter();
-    this->nextState = std::move(nextState);
+    this->nextState = nextState;
   }
   RequestInfo const& requestInfo() override { return requestInfo_; }
   HttpHandlerFactory& httpHandlerFactory() override { return httpHandlerFactory_; }
@@ -47,7 +47,7 @@ class TcpServerHandler final : public ServerHandler, HttpStateContext
     curState->onReceive(buf, len);
     if (nextState.get())
     {
-      curState = std::move(nextState);
+      curState = nextState;
       nextState = HttpStateInstance();
     }
   }

@@ -18,14 +18,9 @@ class ClientWorker
 {
   public:
   ClientWorker(SocketInstance socket, ServerHandlerInstance handler)
-      : socket{socket}, handler(std::move(handler)), _isActive(false), thr{}
+      : socket{socket}, handler(handler), _isActive(false), thr{}
   {
     start();
-  }
-  ClientWorker(ClientWorker&& other)
-      : socket{std::move(other.socket)},
-        handler(std::move(other.handler)), _isActive{other._isActive ? true : false}, thr{std::move(other.thr)}
-  {
   }
   virtual ~ClientWorker() = default;
 
@@ -35,6 +30,7 @@ class ClientWorker
 
   private:
   ClientWorker(ClientWorker&) = delete;
+  ClientWorker(ClientWorker&& other) = delete;
   ClientWorker& operator=(ClientWorker&) = delete;
   ClientWorker& operator=(ClientWorker&&) = delete;
 

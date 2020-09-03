@@ -18,11 +18,6 @@ class Connection
 {
   public:
   Connection(Network::Tcp::SocketInstance socket, Server* server) : socket{socket}, _server{server}, closed{false} {}
-  Connection(Connection&& other) : socket{std::move(other.socket)}, _server{other._server}, closed{other.closed}
-  {
-    other.socket = SocketInstance();
-    other._server = nullptr;
-  }
 
   Server* server() const { return _server; }
   std::size_t send(Byte const* buf, std::size_t len)
@@ -41,6 +36,7 @@ class Connection
   private:
   Connection() = delete;
   Connection(Connection&) = delete;
+  Connection(Connection&& other) = delete;
   Connection& operator=(Connection&) = delete;
   Connection& operator=(Connection&&) = delete;
 
@@ -71,7 +67,7 @@ class ServerHandler : public ConnectionHolder
   virtual void onReceive(Byte const* buf, std::size_t len) = 0;
 };
 
-using ServerHandlerInstance = std::unique_ptr<ServerHandler>;
+using ServerHandlerInstance = std::shared_ptr<ServerHandler>;
 
 class ServerHandlerFactory
 {

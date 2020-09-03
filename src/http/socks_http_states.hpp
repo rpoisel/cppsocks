@@ -19,7 +19,7 @@ namespace Http
 
 class HttpState;
 
-using HttpStateInstance = std::unique_ptr<HttpState>;
+using HttpStateInstance = std::shared_ptr<HttpState>;
 
 class HttpStateContext
 {

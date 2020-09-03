@@ -14,7 +14,7 @@ namespace Http
 {
 SOCKS_INLINE void HttpInitState::onReceive(Byte const* buf, std::size_t len)
 {
-  constexpr std::array<char, 4> TERMINATOR = {'\r', '\n', '\r', '\n'};
+  constexpr std::array<char, 4> TERMINATOR = {{'\r', '\n', '\r', '\n'}};
   try
   {
     // TODO check bounds and available buffer sizes

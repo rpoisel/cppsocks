@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(cmake/StaticAnalyzers.cmake)
-add_compile_options(-Wall -Wextra -pedantic)
+add_compile_options(-Wall -Wextra -Werror -pedantic -pedantic-errors)
 if (COVERAGE)
   add_compile_options(--coverage -O0)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")

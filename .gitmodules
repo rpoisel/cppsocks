@@ -6,8 +6,7 @@
 	url = https://github.com/catchorg/Catch2.git
 [submodule "src/external/digestpp"]
 	path = src/external/digestpp
-	url = https://github.com/rpoisel/digestpp
-	branch = pedantic
+	url = https://github.com/kerukuro/digestpp
 [submodule "src/external/cppcodec"]
 	path = src/external/cppcodec
 	url = https://github.com/tplgy/cppcodec

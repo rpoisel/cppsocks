@@ -32,12 +32,12 @@ SOCKS_INLINE void HttpInitState::onReceive(Byte const* buf, std::size_t len)
                  fsm->requestInfo().path());
     if (fsm->requestInfo().requestType() == RequestType::GET)
     {
-      fsm->setNextState(std::unique_ptr<HttpState>(new HttpGetState(fsm)));
+      fsm->setNextState(HttpStateInstance(new HttpGetState(fsm)));
       return;
     }
     else if (fsm->requestInfo().requestType() == RequestType::GET_WS)
     {
-      fsm->setNextState(std::unique_ptr<HttpState>(new HttpWsState(fsm)));
+      fsm->setNextState(HttpStateInstance(new HttpWsState(fsm)));
       return;
     }
   }

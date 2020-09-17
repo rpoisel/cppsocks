@@ -19,7 +19,7 @@ using Socks::Network::Tcp::ServerHandlerInstance;
 class EchoHandler final : public ServerHandler
 {
   public:
-  EchoHandler(Socks::Network::Tcp::SocketInstance socket, Server* server) : ServerHandler(socket, server) {}
+  explicit EchoHandler(Socks::Network::Tcp::SocketInstance socket, Server* server) : ServerHandler(socket, server) {}
 
   void onConnect() override { spdlog::info("Connection established."); }
   void onDisconnect() override { spdlog::info("Connection closed."); }
@@ -29,12 +29,6 @@ class EchoHandler final : public ServerHandler
     connection()->send(buf, len);
     spdlog::info("Sent message with length {} bytes.", len);
   }
-
-  private:
-  EchoHandler(EchoHandler const&) = delete;
-  EchoHandler& operator=(EchoHandler const&) = delete;
-  EchoHandler(EchoHandler&&) = delete;
-  EchoHandler& operator=(EchoHandler&&) = delete;
 };
 
 class EchoHandlerFactory final : public ServerHandlerFactory

@@ -5,7 +5,9 @@
 
 #include <cstring>
 #include <memory>
+#include <mutex>
 #include <string>
+
 
 namespace Socks
 {
@@ -62,6 +64,32 @@ class WsHandlerFactoryDefault : public WsHandlerFactory
     return WsHandlerInstance(new T(tcpConnection));
   }
 };
+
+
+template <class T, class L, class E>
+class WsHandlerFactoryMultiClient : public WsHandlerFactory
+{
+  public:
+  WsHandlerFactoryMultiClient() = default;
+
+  WsHandlerFactoryMultiClient(L& lock, E& list) : lock(lock), list(list){};
+
+  WsHandlerInstance createWsHandler(Socks::Network::Tcp::Connection* tcpConnection)
+  {
+    T* newConnection = new T(tcpConnection);
+
+    lock.lock();
+    list.push_back(newConnection);
+    lock.unlock();
+
+    return WsHandlerInstance(new T(tcpConnection));
+  }
+
+  private:
+  L& lock;
+  E& list;
+};
+
 
 class WsHandlerNull final : public WsHandler
 {

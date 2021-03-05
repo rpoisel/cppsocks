@@ -6,6 +6,10 @@
 #include <cstring>
 #include <list>
 
+#include <string>
+#include <vector>
+
+
 namespace Socks
 {
 
@@ -18,7 +22,8 @@ using ClientWorkers = std::list<ClientWorker>;
 
 static void cleanup(ClientWorkers& workers);
 
-SOCKS_INLINE void Server::serve(Context& context, ServerHandlerFactory& handlerFactory, ServerOptions const& options)
+SOCKS_INLINE void Server::serve(std::vector<std::string>& clientTypes, Context& context,
+                                ServerHandlerFactory& handlerFactory, ServerOptions const& options)
 {
   ClientWorkers workers;
 
@@ -33,7 +38,9 @@ SOCKS_INLINE void Server::serve(Context& context, ServerHandlerFactory& handlerF
     cleanup(workers);
     if (workers.size() < options.maxClients)
     {
+      std::string clientType = std::string("client") + std::to_string(workers.size());
       workers.emplace_back(clientSocket, handlerFactory.createServerHandler(clientSocket, this));
+      clientTypes.push_back(clientType);
       continue;
     }
     constexpr auto const bye = "No more connections allowed.\n";

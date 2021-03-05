@@ -3,6 +3,7 @@
 
 #include <socks_tcp_handler.hpp>
 
+#include <chrono>
 #include <cstring>
 #include <memory>
 #include <mutex>
@@ -66,20 +67,21 @@ class WsHandlerFactoryDefault : public WsHandlerFactory
 };
 
 
-template <class T, class L, class E>
+template <class T, class L, class C>
 class WsHandlerFactoryMultiClient : public WsHandlerFactory
 {
   public:
   WsHandlerFactoryMultiClient() = default;
 
-  WsHandlerFactoryMultiClient(L& lock, E& list) : lock(lock), list(list){};
+  WsHandlerFactoryMultiClient(L& lock, C& content) : lock(lock), content(content){};
 
   WsHandlerInstance createWsHandler(Socks::Network::Tcp::Connection* tcpConnection)
   {
     T* newConnection = new T(tcpConnection);
 
     lock.lock();
-    list.push_back(newConnection);
+    content.aHandlerToUse.push_back(newConnection);
+    content.aDateLastMessage.push_back(std::chrono::high_resolution_clock::now());
     lock.unlock();
 
     return WsHandlerInstance(new T(tcpConnection));
@@ -87,7 +89,7 @@ class WsHandlerFactoryMultiClient : public WsHandlerFactory
 
   private:
   L& lock;
-  E& list;
+  C& content;
 };
 
 

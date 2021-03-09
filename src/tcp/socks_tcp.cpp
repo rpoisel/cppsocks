@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include <spdlog/spdlog.h>
 
 namespace Socks
 {
@@ -26,11 +27,11 @@ SOCKS_INLINE void Server::serve(std::vector<std::string>& clientTypes, Context& 
                                 ServerHandlerFactory& handlerFactory, ServerOptions const& options)
 {
   ClientWorkers workers;
-
   auto listenSocket = context.createListenSocket(options.serverPort);
   while (!System::quitCondition())
   {
     auto clientSocket = listenSocket->accept();
+
     if (!clientSocket.get())
     {
       continue;
@@ -38,9 +39,13 @@ SOCKS_INLINE void Server::serve(std::vector<std::string>& clientTypes, Context& 
     cleanup(workers);
     if (workers.size() < options.maxClients)
     {
-      std::string clientType = std::string("client") + std::to_string(workers.size());
       workers.emplace_back(clientSocket, handlerFactory.createServerHandler(clientSocket, this));
-      clientTypes.push_back(clientType);
+      std::string clientType = std::string("client") + std::to_string(workers.size());
+
+      if ((workers.size() - 1) <= (clientTypes.size() - 1))
+      {
+        clientTypes[(workers.size() - 1)] = clientType;
+      }
       continue;
     }
     constexpr auto const bye = "No more connections allowed.\n";

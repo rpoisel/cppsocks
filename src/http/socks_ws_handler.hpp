@@ -80,8 +80,7 @@ class WsHandlerFactoryMultiClient : public WsHandlerFactory
     T* newConnection = new T(tcpConnection);
 
     lock.lock();
-    content.aHandlerToUse.push_back(newConnection);
-    content.aDateLastMessage.push_back(std::chrono::high_resolution_clock::now());
+    content.newClient(newConnection);
     lock.unlock();
 
     return WsHandlerInstance(new T(tcpConnection));

@@ -40,12 +40,6 @@ SOCKS_INLINE void Server::serve(std::vector<std::string>& clientTypes, Context& 
     if (workers.size() < options.maxClients)
     {
       workers.emplace_back(clientSocket, handlerFactory.createServerHandler(clientSocket, this));
-      std::string clientType = std::string("client") + std::to_string(workers.size());
-
-      if ((workers.size() - 1) <= (clientTypes.size() - 1))
-      {
-        clientTypes[(workers.size() - 1)] = clientType;
-      }
       continue;
     }
     constexpr auto const bye = "No more connections allowed.\n";

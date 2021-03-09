@@ -6,6 +6,9 @@
 #include <socks_tcp_handler.hpp>
 #include <socks_tcp_options.hpp>
 
+#include <string>
+#include <vector>
+
 namespace Socks
 {
 
@@ -18,7 +21,8 @@ class Server final
 {
   public:
   Server() = default;
-  void serve(Context& context, ServerHandlerFactory& handlerFactory, ServerOptions const& options = ServerOptions());
+  void serve(std::vector<std::string>& clientTypes, Context& context, ServerHandlerFactory& handlerFactory,
+             ServerOptions const& options = ServerOptions());
 
   private:
   Server(Server&) = delete;

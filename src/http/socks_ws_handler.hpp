@@ -3,9 +3,12 @@
 
 #include <socks_tcp_handler.hpp>
 
+#include <chrono>
 #include <cstring>
 #include <memory>
+#include <mutex>
 #include <string>
+
 
 namespace Socks
 {
@@ -62,6 +65,32 @@ class WsHandlerFactoryDefault : public WsHandlerFactory
     return WsHandlerInstance(new T(tcpConnection));
   }
 };
+
+
+template <class T, class L, class C>
+class WsHandlerFactoryMultiClient : public WsHandlerFactory
+{
+  public:
+  WsHandlerFactoryMultiClient() = default;
+
+  WsHandlerFactoryMultiClient(L& lock, C& content) : lock(lock), content(content){};
+
+  WsHandlerInstance createWsHandler(Socks::Network::Tcp::Connection* tcpConnection)
+  {
+    T* newConnection = new T(tcpConnection);
+
+    lock.lock();
+    content.newClient(newConnection);
+    lock.unlock();
+
+    return WsHandlerInstance(new T(tcpConnection));
+  }
+
+  private:
+  L& lock;
+  C& content;
+};
+
 
 class WsHandlerNull final : public WsHandler
 {

@@ -6,6 +6,9 @@
 #include <socks_ws_handler.hpp>
 
 #include <cstddef>
+#include <string>
+#include <vector>
+
 
 namespace Socks
 {
@@ -24,26 +27,29 @@ struct ServerOptions
 class Server final
 {
   public:
-  static void serve(Socks::Network::Tcp::Context& context, HttpHandlerFactory& httpHandlerFactory,
-                    WsHandlerFactory& wsHandlerFactory, ServerOptions const& options = ServerOptions());
-  static inline void serve(Socks::Network::Tcp::Context& context, WsHandlerFactory& wsHandler, std::string const& basePath,
+  static void serve(std::vector<std::string>& clientTypes, Socks::Network::Tcp::Context& context,
+                    HttpHandlerFactory& httpHandlerFactory, WsHandlerFactory& wsHandlerFactory,
+                    ServerOptions const& options = ServerOptions());
+
+  static inline void serve(std::vector<std::string>& clientTypes, Socks::Network::Tcp::Context& context,
+                           WsHandlerFactory& wsHandler, std::string const& basePath,
                            ServerOptions const& options = ServerOptions())
   {
     HttpFileHandlerFactory fileHandlerFactory(basePath);
-    serve(context, fileHandlerFactory, wsHandler, options);
+    serve(clientTypes, context, fileHandlerFactory, wsHandler, options);
   }
-  static inline void serve(Socks::Network::Tcp::Context& context, HttpHandlerFactory& httpHandlerFactory,
-                           ServerOptions const& options = ServerOptions())
+  static inline void serve(std::vector<std::string>& clientTypes, Socks::Network::Tcp::Context& context,
+                           HttpHandlerFactory& httpHandlerFactory, ServerOptions const& options = ServerOptions())
   {
     WsHandlerNullFactory wsHandlerFactory;
-    serve(context, httpHandlerFactory, wsHandlerFactory, options);
+    serve(clientTypes, context, httpHandlerFactory, wsHandlerFactory, options);
   }
-  static inline void serve(Socks::Network::Tcp::Context& context, std::string const& basePath,
-                           ServerOptions const& options = ServerOptions())
+  static inline void serve(std::vector<std::string>& clientTypes, Socks::Network::Tcp::Context& context,
+                           std::string const& basePath, ServerOptions const& options = ServerOptions())
   {
     HttpFileHandlerFactory fileHandlerFactory(basePath);
     WsHandlerNullFactory wsHandlerFactory;
-    serve(context, fileHandlerFactory, wsHandlerFactory, options);
+    serve(clientTypes, context, fileHandlerFactory, wsHandlerFactory, options);
   }
 
   private:

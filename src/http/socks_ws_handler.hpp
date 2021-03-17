@@ -77,7 +77,6 @@ class WsHandlerFactoryMultiClient : public WsHandlerFactory
 
   WsHandlerInstance createWsHandler(Socks::Network::Tcp::Connection* tcpConnection)
   {
-    std::cout << "Create new WebSocket connection handler" << std::endl;
     T* newConnection = new T(tcpConnection);
 
     lock.lock();

@@ -1,11 +1,11 @@
 #include <socks_http_handler.hpp>
 
 #include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/spdlog.h>
 
 #include <cstring>
 #include <exception>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -149,7 +149,7 @@ SOCKS_INLINE void HttpFileHandler::do_GET(HttpConnection* connection, RequestInf
   std::fstream in(path, std::ios_base::in | std::ios_base::binary);
   if (in.fail())
   {
-    spdlog::error("Could not open file: {}", path);
+    std::cerr << "Could not open file: " << path << std::endl;
     connection->http_404();
     return;
   }

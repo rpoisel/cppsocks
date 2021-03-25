@@ -27,6 +27,8 @@ SOCKS_INLINE void WsConnection::close()
   tcpConnection->send(message.data(), message.length());
   tcpConnection->close();
 }
+
+SOCKS_INLINE void WsConnection::closeTcp() { tcpConnection->close(); }
 } // namespace Http
 } // namespace Network
 } // namespace Socks

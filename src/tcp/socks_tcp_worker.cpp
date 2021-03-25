@@ -2,8 +2,8 @@
 #include <socks_tcp_types.hpp>
 #include <socks_tcp_worker.hpp>
 
+#include <iostream>
 #include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/spdlog.h>
 
 #include <exception>
 
@@ -26,7 +26,9 @@ SOCKS_INLINE void ClientWorker::run()
   }
   catch (std::exception& exc)
   {
-    spdlog::error("{}", exc.what());
+    handler->onDisconnect();
+    socket->close();
+    std::cerr << exc.what() << std::endl;
   }
   _isActive = false;
 }

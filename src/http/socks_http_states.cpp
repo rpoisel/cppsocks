@@ -3,6 +3,7 @@
 
 #include <array>
 #include <exception>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 
@@ -28,8 +29,8 @@ SOCKS_INLINE void HttpInitState::onReceive(Byte const* buf, std::size_t len)
     recvBuf[recvBuf.size() - 1] = '\0';
 
     requestInfo.parse(recvBuf.data(), numRecv);
-    spdlog::info("Request Type: {}, Path: {}", fsm->requestInfo().requestType() == RequestType::GET ? "GET" : "GET_WS",
-                 fsm->requestInfo().path());
+    std::cout << "Request Type: " << ((fsm->requestInfo().requestType() == RequestType::GET) ? "GET" : "GET_WS")
+              << ", Path: " << fsm->requestInfo().path() << std::endl;
     if (fsm->requestInfo().requestType() == RequestType::GET)
     {
       fsm->setNextState(HttpStateInstance(new HttpGetState(fsm)));
@@ -43,7 +44,7 @@ SOCKS_INLINE void HttpInitState::onReceive(Byte const* buf, std::size_t len)
   }
   catch (const std::exception& exc)
   {
-    spdlog::error("HTTP request cannot be parsed completely ({})", exc.what());
+    std::cerr << "HTTP request cannot be parsed completely (" << exc.what() << ")" << std::endl;
   }
 
   fsm->tcpConnection()->close();

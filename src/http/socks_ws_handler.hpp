@@ -24,6 +24,7 @@ class WsConnection final
   std::size_t send(Byte const* buf, std::size_t len);
   std::size_t send(char const* buf);
   void close();
+  void closeTcp();
 
   private:
   Socks::Network::Tcp::Connection* tcpConnection;

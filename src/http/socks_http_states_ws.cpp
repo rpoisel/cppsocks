@@ -46,45 +46,55 @@ SOCKS_INLINE void HttpWsState::onReceive(Byte const* buf, std::size_t len)
 {
   try
   {
-    std::uint8_t opcode_;
-    bool start = inBuf.size() == 0;
-    auto fin = WebSocketFrame::decode(buf, len, inBuf, &opcode_);
-    if (start)
-    {
-      opcode = opcode_;
-    }
-    if (!fin)
-    {
-      // just received data
-      return;
-    }
+    Byte const* buffer = buf;
+    std::size_t length = len;
 
-    switch (opcode)
+    while (length > 0) // when multiple ws frames are received
     {
-    case WebSocketFrame::OPCODE_CONTINUATION:
-      throw std::runtime_error("WebSocket opcode must not be 0 when FIN bit is set.");
-      break;
-    case WebSocketFrame::OPCODE_CONNECTION_CLOSE:
-      handler->connection()->close();
-      break;
-    case WebSocketFrame::OPCODE_CONNECTION_PING:
-    {
-      auto response = WebSocketFrame::createPong(inBuf.data(), inBuf.size());
-      fsm->tcpConnection()->send(response.payload(), response.payloadLength());
-      break;
+      std::uint8_t opcode_;
+      bool start = inBuf.size() == 0;
+      std::size_t sizeRead;
+      auto fin = WebSocketFrame::decode(buffer, length, inBuf, &opcode_, &sizeRead);
+      buffer += sizeRead;
+      length -= sizeRead;
+
+      if (start)
+      {
+        opcode = opcode_;
+      }
+      if (!fin)
+      {
+        // just received data
+        continue;
+      }
+
+      switch (opcode)
+      {
+      case WebSocketFrame::OPCODE_CONTINUATION:
+        throw std::runtime_error("WebSocket opcode must not be 0 when FIN bit is set.");
+        break;
+      case WebSocketFrame::OPCODE_CONNECTION_CLOSE:
+        handler->connection()->close();
+        break;
+      case WebSocketFrame::OPCODE_CONNECTION_PING:
+      {
+        auto response = WebSocketFrame::createPong(inBuf.data(), inBuf.size());
+        fsm->tcpConnection()->send(response.payload(), response.payloadLength());
+        break;
+      }
+      case WebSocketFrame::OPCODE_BINARY:
+        handler->onData(inBuf.data(), inBuf.size());
+        break;
+      case WebSocketFrame::OPCODE_TEXT:
+        inBuf.resize(inBuf.size() + 1);
+        inBuf[inBuf.size() - 1] = '\0';
+        handler->onText(reinterpret_cast<char const*>(inBuf.data()));
+        break;
+      default:
+        break;
+      }
+      inBuf.clear();
     }
-    case WebSocketFrame::OPCODE_BINARY:
-      handler->onData(inBuf.data(), inBuf.size());
-      break;
-    case WebSocketFrame::OPCODE_TEXT:
-      inBuf.resize(inBuf.size() + 1);
-      inBuf[inBuf.size() - 1] = '\0';
-      handler->onText(reinterpret_cast<char const*>(inBuf.data()));
-      break;
-    default:
-      break;
-    }
-    inBuf.clear();
   }
   catch (std::invalid_argument& exc)
   {

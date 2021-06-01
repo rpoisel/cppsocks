@@ -7,6 +7,9 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
 
+#include <string>
+#include <vector>
+
 namespace Socks
 {
 namespace Network
@@ -79,14 +82,15 @@ class TcpServerHandlerFactory final : public ServerHandlerFactory
   WsHandlerFactory& wsHandlerFactory;
 };
 
-SOCKS_INLINE void Server::serve(Context& context, HttpHandlerFactory& httpHandlerFactory, WsHandlerFactory& wsHandlerFactory,
+SOCKS_INLINE void Server::serve(std::vector<std::string>& clientTypes, Context& context,
+                                HttpHandlerFactory& httpHandlerFactory, WsHandlerFactory& wsHandlerFactory,
                                 ServerOptions const& options)
 {
   TcpServerHandlerFactory tcpHandlerFactory(httpHandlerFactory, wsHandlerFactory);
   Socks::Network::Tcp::ServerOptions tcpOptions(options.port, options.maxClients);
   Socks::Network::Tcp::Server server;
 
-  server.serve(context, tcpHandlerFactory, tcpOptions);
+  server.serve(clientTypes, context, tcpHandlerFactory, tcpOptions);
 }
 } // namespace Http
 } // namespace Network

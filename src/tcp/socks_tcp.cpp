@@ -6,6 +6,11 @@
 #include <cstring>
 #include <list>
 
+#include <string>
+#include <vector>
+
+#include <spdlog/spdlog.h>
+
 namespace Socks
 {
 
@@ -18,14 +23,15 @@ using ClientWorkers = std::list<ClientWorker>;
 
 static void cleanup(ClientWorkers& workers);
 
-SOCKS_INLINE void Server::serve(Context& context, ServerHandlerFactory& handlerFactory, ServerOptions const& options)
+SOCKS_INLINE void Server::serve(std::vector<std::string>& clientTypes, Context& context,
+                                ServerHandlerFactory& handlerFactory, ServerOptions const& options)
 {
   ClientWorkers workers;
-
   auto listenSocket = context.createListenSocket(options.serverPort);
   while (!System::quitCondition())
   {
     auto clientSocket = listenSocket->accept();
+
     if (!clientSocket.get())
     {
       continue;

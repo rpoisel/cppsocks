@@ -21,7 +21,8 @@ SOCKS_INLINE WebSocketFrame WebSocketFrame::createPong(Byte const* buf, std::siz
   return WebSocketFrame(buf, len, true, OPCODE_CONNECTION_PONG);
 }
 
-SOCKS_INLINE bool WebSocketFrame::decode(Byte const* buf, std::size_t len, WsBuffer& payloadBuf, OpCode* opcode /* output */)
+SOCKS_INLINE bool WebSocketFrame::decode(Byte const* buf, std::size_t len, WsBuffer& payloadBuf, OpCode* opcode /* output */,
+                                         std::size_t* sizeRead)
 {
   if (len < 2)
   {
@@ -53,10 +54,12 @@ SOCKS_INLINE bool WebSocketFrame::decode(Byte const* buf, std::size_t len, WsBuf
     {
       payloadBuf[oldPayloadSize + cnt] = (buf[payloadOffset + 4 + cnt] ^ maskingKey[cnt % 4]);
     }
+    *sizeRead = payloadOffset + 4 + frameLen;
   }
   else
   {
     std::memcpy(payloadBuf.data(), buf + payloadOffset, frameLen);
+    *sizeRead = payloadOffset + frameLen;
   }
 
   return (buf[0] & 0x80) == 0x80; /* value of FIN bit */

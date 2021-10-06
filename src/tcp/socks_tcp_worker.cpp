@@ -35,13 +35,13 @@ SOCKS_INLINE void ClientWorker::run()
 
 SOCKS_INLINE void ClientWorker::loop()
 {
-  MsgBuf buf;
+  std::unique_ptr<MsgBuf> pBuf(new MsgBuf);
 
   while (!System::quitCondition() && !handler->connection()->isClosed())
   {
     if (socket->isReadable())
     {
-      auto len = socket->read(buf);
+      auto len = socket->read(*pBuf);
       if (len == Socket::NUM_EOF)
       {
         break;
@@ -50,7 +50,7 @@ SOCKS_INLINE void ClientWorker::loop()
       {
         continue;
       }
-      handler->onReceive(buf.data(), len);
+      handler->onReceive(pBuf->data(), len);
     }
   }
 }

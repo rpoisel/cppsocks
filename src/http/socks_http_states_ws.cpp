@@ -44,13 +44,15 @@ SOCKS_INLINE void HttpWsState::onEnter()
 
 SOCKS_INLINE void HttpWsState::onReceive(Byte const* buf, std::size_t len)
 {
-  try
-  {
     Byte const* buffer = buf;
     std::size_t length = len;
 
     while (length > 0) // when multiple ws frames are received
     {
+      if (length > Socks::Network::Tcp::MAX_SIZE)
+      {
+        throw std::invalid_argument("WebSocket frame invalid. (length > MAX_SIZE)");
+      }
       std::uint8_t opcode_;
       bool start = inBuf.size() == 0;
       std::size_t sizeRead;
@@ -95,11 +97,6 @@ SOCKS_INLINE void HttpWsState::onReceive(Byte const* buf, std::size_t len)
       }
       inBuf.clear();
     }
-  }
-  catch (std::invalid_argument& exc)
-  {
-    (void)exc;
-  }
 }
 
 SOCKS_INLINE void HttpWsState::onDisconnect() { handler->onDisconnect(); }

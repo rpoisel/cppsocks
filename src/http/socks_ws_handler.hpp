@@ -68,27 +68,24 @@ class WsHandlerFactoryDefault : public WsHandlerFactory
 };
 
 
-template <class T, class L, class C>
+template <class T, class C>
 class WsHandlerFactoryMultiClient : public WsHandlerFactory
 {
   public:
   WsHandlerFactoryMultiClient() = default;
 
-  WsHandlerFactoryMultiClient(L& lock, C& content) : lock(lock), content(content){};
+  WsHandlerFactoryMultiClient(C& content) : content(content){};
 
   WsHandlerInstance createWsHandler(Socks::Network::Tcp::Connection* tcpConnection)
   {
-    T* newConnection = new T(tcpConnection);
+    T* newConnection = new T(tcpConnection, content);
 
-    lock.lock();
     content.newClient(newConnection);
-    lock.unlock();
 
     return WsHandlerInstance(newConnection);
   }
 
   private:
-  L& lock;
   C& content;
 };
 

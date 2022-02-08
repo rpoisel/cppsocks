@@ -29,7 +29,7 @@ class SocketImpl final : public Socks::Network::Tcp::Socket
 {
   public:
   explicit SocketImpl(int fd);
-  ~SocketImpl() override {}
+  ~SocketImpl() override { close(); }
   ssize_t read(std::array<Socks::Byte, Socks::Network::Tcp::MAX_SIZE>& buf) override;
   ssize_t write(Socks::Byte const* buf, std::size_t buflen) override;
   virtual bool isReadable() const override;

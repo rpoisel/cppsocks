@@ -22,12 +22,10 @@ SOCKS_INLINE void ClientWorker::run()
     handler->onConnect();
     loop();
     handler->onDisconnect();
-    socket->close();
   }
   catch (std::exception& exc)
   {
     handler->onDisconnect();
-    socket->close();
     std::cerr << exc.what() << std::endl;
   }
   _isActive = false;

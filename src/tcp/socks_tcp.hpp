@@ -21,8 +21,7 @@ class Server final
 {
   public:
   Server() = default;
-  void serve(std::vector<std::string>& clientTypes, Context& context, ServerHandlerFactory& handlerFactory,
-             ServerOptions const& options = ServerOptions());
+  void serve(Context& context, ServerHandlerFactory& handlerFactory, ServerOptions const& options = ServerOptions());
 
   private:
   Server(Server&) = delete;

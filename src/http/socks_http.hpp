@@ -27,29 +27,29 @@ struct ServerOptions
 class Server final
 {
   public:
-  static void serve(std::vector<std::string>& clientTypes, Socks::Network::Tcp::Context& context,
+  static void serve(Socks::Network::Tcp::Context& context,
                     HttpHandlerFactory& httpHandlerFactory, WsHandlerFactory& wsHandlerFactory,
                     ServerOptions const& options = ServerOptions());
 
-  static inline void serve(std::vector<std::string>& clientTypes, Socks::Network::Tcp::Context& context,
+  static inline void serve(Socks::Network::Tcp::Context& context,
                            WsHandlerFactory& wsHandler, std::string const& basePath,
                            ServerOptions const& options = ServerOptions())
   {
     HttpFileHandlerFactory fileHandlerFactory(basePath);
-    serve(clientTypes, context, fileHandlerFactory, wsHandler, options);
+    serve(context, fileHandlerFactory, wsHandler, options);
   }
-  static inline void serve(std::vector<std::string>& clientTypes, Socks::Network::Tcp::Context& context,
+  static inline void serve(Socks::Network::Tcp::Context& context,
                            HttpHandlerFactory& httpHandlerFactory, ServerOptions const& options = ServerOptions())
   {
     WsHandlerNullFactory wsHandlerFactory;
-    serve(clientTypes, context, httpHandlerFactory, wsHandlerFactory, options);
+    serve(context, httpHandlerFactory, wsHandlerFactory, options);
   }
-  static inline void serve(std::vector<std::string>& clientTypes, Socks::Network::Tcp::Context& context,
+  static inline void serve(Socks::Network::Tcp::Context& context,
                            std::string const& basePath, ServerOptions const& options = ServerOptions())
   {
     HttpFileHandlerFactory fileHandlerFactory(basePath);
     WsHandlerNullFactory wsHandlerFactory;
-    serve(clientTypes, context, fileHandlerFactory, wsHandlerFactory, options);
+    serve(context, fileHandlerFactory, wsHandlerFactory, options);
   }
 
   private:

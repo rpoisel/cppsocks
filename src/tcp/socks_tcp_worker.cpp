@@ -2,8 +2,8 @@
 #include <socks_tcp_types.hpp>
 #include <socks_tcp_worker.hpp>
 
+#include <iostream>
 #include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/spdlog.h>
 
 #include <exception>
 
@@ -22,24 +22,24 @@ SOCKS_INLINE void ClientWorker::run()
     handler->onConnect();
     loop();
     handler->onDisconnect();
-    socket->close();
   }
   catch (std::exception& exc)
   {
-    spdlog::error("{}", exc.what());
+    handler->onDisconnect();
+    std::cerr << exc.what() << std::endl;
   }
   _isActive = false;
 }
 
 SOCKS_INLINE void ClientWorker::loop()
 {
-  MsgBuf buf;
+  std::unique_ptr<MsgBuf> pBuf(new MsgBuf);
 
   while (!System::quitCondition() && !handler->connection()->isClosed())
   {
     if (socket->isReadable())
     {
-      auto len = socket->read(buf);
+      auto len = socket->read(*pBuf);
       if (len == Socket::NUM_EOF)
       {
         break;
@@ -48,7 +48,7 @@ SOCKS_INLINE void ClientWorker::loop()
       {
         continue;
       }
-      handler->onReceive(buf.data(), len);
+      handler->onReceive(pBuf->data(), len);
     }
   }
 }

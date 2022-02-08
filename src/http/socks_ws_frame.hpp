@@ -31,7 +31,8 @@ class WebSocketFrame
 
   static WebSocketFrame createConnectionClose(CloseReasonCode reasonCode = 0);
   static WebSocketFrame createPong(Byte const* buf, std::size_t len);
-  static bool decode(Byte const* buf, std::size_t len, WsBuffer& payloadBuf, OpCode* opcode /* output */);
+  static bool decode(Byte const* buf, std::size_t len, WsBuffer& payloadBuf, OpCode* opcode /* output */,
+                     std::size_t* sizeRead);
 
   explicit WebSocketFrame(Byte const* payload, std::size_t payloadLength, bool fin, OpCode opcode);
   explicit WebSocketFrame(Byte const* payload, std::size_t payloadLength, bool fin);

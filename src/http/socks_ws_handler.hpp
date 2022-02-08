@@ -3,9 +3,12 @@
 
 #include <socks_tcp_handler.hpp>
 
+#include <chrono>
 #include <cstring>
 #include <memory>
+#include <mutex>
 #include <string>
+
 
 namespace Socks
 {
@@ -21,6 +24,7 @@ class WsConnection final
   std::size_t send(Byte const* buf, std::size_t len);
   std::size_t send(char const* buf);
   void close();
+  void closeTcp();
 
   private:
   Socks::Network::Tcp::Connection* tcpConnection;
@@ -62,6 +66,29 @@ class WsHandlerFactoryDefault : public WsHandlerFactory
     return WsHandlerInstance(new T(tcpConnection));
   }
 };
+
+
+template <class T, class C>
+class WsHandlerFactoryMultiClient : public WsHandlerFactory
+{
+  public:
+  WsHandlerFactoryMultiClient() = default;
+
+  WsHandlerFactoryMultiClient(C& content) : content(content){};
+
+  WsHandlerInstance createWsHandler(Socks::Network::Tcp::Connection* tcpConnection)
+  {
+    T* newConnection = new T(tcpConnection, content);
+
+    content.newClient(newConnection);
+
+    return WsHandlerInstance(newConnection);
+  }
+
+  private:
+  C& content;
+};
+
 
 class WsHandlerNull final : public WsHandler
 {

@@ -11,8 +11,9 @@ namespace Network
 {
 namespace Tcp
 {
-constexpr std::size_t const MAX_SIZE = 4096;
-
+/* Size of worker thread receive buffer. */
+constexpr std::size_t const MAX_SIZE = 40960;
+/* Worker thread receive buffer. WebSocket frames are read from the tcp socket to this buffer. */
 using MsgBuf = std::array<Byte, MAX_SIZE>;
 } // namespace Tcp
 } // namespace Network

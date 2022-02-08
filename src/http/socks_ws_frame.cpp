@@ -21,7 +21,8 @@ SOCKS_INLINE WebSocketFrame WebSocketFrame::createPong(Byte const* buf, std::siz
   return WebSocketFrame(buf, len, true, OPCODE_CONNECTION_PONG);
 }
 
-SOCKS_INLINE bool WebSocketFrame::decode(Byte const* buf, std::size_t len, WsBuffer& payloadBuf, OpCode* opcode /* output */)
+SOCKS_INLINE bool WebSocketFrame::decode(Byte const* buf, std::size_t len, WsBuffer& payloadBuf, OpCode* opcode /* output */,
+                                         std::size_t* sizeRead)
 {
   if (len < 2)
   {
@@ -32,6 +33,7 @@ SOCKS_INLINE bool WebSocketFrame::decode(Byte const* buf, std::size_t len, WsBuf
   bool mask = (buf[1] & 0x80) == 0x80;
   *opcode = buf[0] & 0x0f;
   std::size_t payloadOffset = 2;
+  std::size_t sizeToRead;
   // TODO check for correct len (must be > 2 now)
   if (frameLen == 126)
   {
@@ -43,6 +45,25 @@ SOCKS_INLINE bool WebSocketFrame::decode(Byte const* buf, std::size_t len, WsBuf
     frameLen = ntoh<std::uint64_t>(&buf[2]);
     payloadOffset += 8;
   }
+
+  if (mask)
+  {
+    sizeToRead = payloadOffset + 4 + frameLen;
+  }
+  else
+  {
+    sizeToRead = payloadOffset + frameLen;
+  }
+  if(sizeToRead > len)
+  {
+    /* When the tcp worker thread receive buffer is full (size is Socks::Network::Tcp::MAX_SIZE),
+     * the socket recv function returns a truncated WebSocket frame.
+     * This happens when large amounts of WebSocket frames are received, when logging of data
+     * is turned on, and when the machine is slow or other processes have high cpu load.
+     * Thus the Socks::Network::Tcp::MAX_SIZE was increased and logging should be turned off
+     * for large amounts of receive data. */
+    throw std::invalid_argument("WebSocket frame is truncated.");
+  }
   auto oldPayloadSize = payloadBuf.size();
   payloadBuf.resize(payloadBuf.size() + frameLen);
 
@@ -53,10 +74,12 @@ SOCKS_INLINE bool WebSocketFrame::decode(Byte const* buf, std::size_t len, WsBuf
     {
       payloadBuf[oldPayloadSize + cnt] = (buf[payloadOffset + 4 + cnt] ^ maskingKey[cnt % 4]);
     }
+    *sizeRead = sizeToRead;
   }
   else
   {
     std::memcpy(payloadBuf.data(), buf + payloadOffset, frameLen);
+    *sizeRead = sizeToRead;
   }
 
   return (buf[0] & 0x80) == 0x80; /* value of FIN bit */

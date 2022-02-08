@@ -6,6 +6,9 @@
 #include <socks_tcp_handler.hpp>
 #include <socks_tcp_options.hpp>
 
+#include <string>
+#include <vector>
+
 namespace Socks
 {
 
